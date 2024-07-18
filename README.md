@@ -48,7 +48,7 @@ now ...
 - Run it how you run any java jarfile with the `java -jar neotranspiler.jar --help`
 
 
-## Optional aliasing to `neotrans`
+# Optional aliasing to `neotrans`
 If you want to alias `java -jar neotranspiler.jar` to `neotrans` like in the examples given above:
 
 ### Linux and macOS
@@ -72,4 +72,19 @@ now that you've cloned the repo..
 Prerequisites
 - `mvn` (Maven) in your `$PATH`
 
-now run the command `mvn clean package` and `cd target`
+now run the command `mvn clean package` ...
+
+`cd target` to go to the `target` directory and the jar file without `original` in it's name is the compiled output
+
+### Windows
+
+- Clone the git repo `git clone https://github.com/DiscBotMaker/neo-transpiler.git`
+
+now that you've cloned the repo..
+
+Prerequisites
+- `mvn` (Maven) in your `%PATH%`
+
+now run the command `mvn clean package` ...
+
+`cd target` to go to the `target` directory and the jar file without `original` in it's name is the compiled output
