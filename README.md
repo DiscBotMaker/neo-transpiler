@@ -53,7 +53,7 @@ If you want to alias `java -jar neotranspiler.jar` to `neotrans` like in the exa
 
 ### Linux and macOS
 - Open your `~/.bashrc` or `~/.zshrc` file and at the end of it add the line `alias neotrans='java -jar /path/to/neotranspiler.jar'`<br>
-- Run the command `source ~/.zshrc`
+- Run the command `source ~/.zshrc` or `source ~/.bashrc` depending on which you edited.
 
 replace /path/to/neotranspiler.jar with the actual path.<br>
 make sure `java` is in your `$PATH`
