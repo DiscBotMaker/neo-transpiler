@@ -13,9 +13,9 @@ Here `-S` is shorthand for `--setup` and `.` sets up the files and folders in th
 ### Compiling
 
 ```sh
-> neotrans -s
+> neotrans -b
 ```
-Here `-s` is shorthand for `--source-file` with the output in the `dist/` directory
+Here `-b` is shorthand for `--build` with the output in the `dist/` directory
 
 ### Running
 
