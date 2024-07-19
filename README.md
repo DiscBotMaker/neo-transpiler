@@ -6,9 +6,9 @@
 ### Setting up your environment
 
 ```sh
-> neotrans -S .
+> neotrans -S
 ```
-Here `-S` is shorthand for `--setup` and `.` sets up the files and folders in the current directory
+Here `-S` is shorthand for `--setup` and sets up the files and folders in the current directory
 
 ### Compiling
 
