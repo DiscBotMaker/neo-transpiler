@@ -1,0 +1,30 @@
+# project.yml
+version: "1.0.0-DEV"
+# ^^^ do not change, it WILL break your config
+
+# mirror to download libraries from, if you do not know what this is, ignore it
+library_mirror: "OFFICIAL"
+
+project:
+  # number of tabs to use in your project
+  tab_length: 4
+
+  # source directory to look for *.dbm files
+  # any subdirectories within will also get compiled
+  source_directory: "src"
+
+  # project name
+  name: "MyExampleProject"
+
+  # project version
+  version: "1.0-a"
+
+  # author
+  author: "Author"
+
+  # GitHub repository
+  github_repository: "https://github.com/Author/MyExampleProject"
+
+package_manager:
+  name: "dpm" # name of the package manager
+  directory: ".dpm" # directory to store downloaded libraries

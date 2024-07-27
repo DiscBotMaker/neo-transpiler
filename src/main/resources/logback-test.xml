@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <logger name="io.javalin" level="OFF"/>
+    <logger name="org.eclipse.jetty" level="OFF"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>
+                <!--                Blue: \u001B[34m        -->
+                <!--                Green: \u001B[32m       -->
+                <!--                White: \u001B[37m       -->
+                <!--                Yellow: \u001B[33m      -->
+                <!--                Red: \u001B[31m         -->
+                <!--                Reset: \u001B[0m        -->
+                <!--                %highlight(%-5level){"ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta"}-->
+                [%d{HH:mm:ss} %highlight(%-5level){"ERROR=red, WARN=yellow, INFO=green, DEBUG=blue, TRACE=magenta"}] %green(\(%logger{0}\)) %msg\n
+                <!-- [21:36:17 INFO ] (Main) <Message> -->
+            </pattern>
+        </encoder>
+    </appender>
+
+    <root level="debug">
+        <appender-ref ref="STDOUT"/>
+    </root>
+
+</configuration>
