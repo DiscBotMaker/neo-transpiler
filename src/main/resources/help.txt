@@ -1,0 +1,10 @@
+usage: neotrans [options] [args]
+options are case sensitive
+
+options:
+    [--help     |   -h] -> print this help menu to System.out
+    [--setup    |   -S] -> setup files in the current directory
+    [--build    |   -b] -> builds the current project if any
+    [--run      |   -r] -> runs the current project if any (does not build)
+    [--version  |   -v] -> print version to System.out
+    [--debug    |   -d] -> only works in development builds, runs everything in debug mode, this is loaded before all other options
