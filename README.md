@@ -1,5 +1,5 @@
 # neo-transpiler
-[LITE] All-in-one transpiler utility for DBMScript supporting every version standard since v1.0
+All-in-one transpiler utility for DBMScript supporting every version standard since v1.0
 
 # Example Usage
 
@@ -23,14 +23,18 @@ Here `-b` is shorthand for `--build` with the output in the `dist/` directory
 > neotrans -r
 ```
 
-Here `-r` is shorthand for `--run` and runs the compiled sources
-
-or you can alternatively...<br>
+Here `-r` is shorthand for `--run` and runs the compiled sources,<br>
+You can even **combine** options:
 
 ```sh
-> java -jar dist/compiled.jar
+> neotrans -b -r
 ```
-^^ to manually run the compiled output
+will build then run...
+<br>
+For a more comprehensive help:
+```sh
+> neotrans -h
+```
 
 # Downloading and Running
 
