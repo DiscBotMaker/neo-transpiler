@@ -5,6 +5,21 @@ options:
     [--help     |   -h] -> print this help menu to System.out
     [--setup    |   -S] -> setup files in the current directory
     [--build    |   -b] -> builds the current project if any
+    [--clean    |   -c] -> cleans your build cache
     [--run      |   -r] -> runs the current project if any (does not build)
     [--version  |   -v] -> print version to System.out
     [--debug    |   -d] -> only works in development builds, runs everything in debug mode, this is loaded before all other options
+    [--download-libraries
+                |   -D] -Dstd <std> -> re-downloads libraries from mirror specified in config else if not exist then from the default mirror
+                                    └> -Dstd<std> is optional, but if mentioned then will use that stdlib version, like -Dstd 1, -Dstd 2 etc
+    [--simple   |   -s] -> will not use any graphics at all only plain text
+
+compiler options:
+    start with -C<option> and do not have a shorthand
+    [-Cno-exit-on-error     ] -> tells compiler to not exit on close
+    [-Cexit-on-warn         ] -> tells compiler to exit on warn
+    [-Cstd <std>            ] -> uses std version <std> and installs libs from mirror if not installed
+    [-Cno-stdlib            ] -> tells compiler to not use any no std libraries and thus, no classpath
+
+javac options:
+    start with -J<option> and do not have a shorthand, they are passed directly to javac

@@ -5,8 +5,7 @@ import java.io.PrintStream;
 public class InlineErrorFixSuggestion {
     private static final String REPEATED_CHAR = "~";
 
-    public static void fix(String originalString, char unknownCharacter, PrintStream printStream) {
-        printStream.println(originalString);
+    public static void fix(String originalString, char unknownCharacter, PrintStream printStream, int lineNum) {
         String msg = "";
         for (int i = 0; i < originalString.length(); i++) {
             msg += REPEATED_CHAR;
@@ -18,11 +17,14 @@ public class InlineErrorFixSuggestion {
                 msg = String.valueOf(temp);
             }
         }
-        printStream.println(msg);
+        msg = " | " + msg;
+        String padding = " ".repeat(String.valueOf(lineNum).length());
+        printStream.println(padding + " | ");
+        printStream.println(padding + "\b" + lineNum + " | " + originalString);
+        printStream.println(padding + msg);
     }
 
-    public static void fix(String originalString, String unknownCharacter, PrintStream printStream) {
-        printStream.println(originalString);
+    public static void fix(String originalString, String unknownCharacter, PrintStream printStream, int lineNum) {
         String msg = "";
         for (int i = 0; i < originalString.length(); i++) {
             msg += REPEATED_CHAR;
@@ -34,6 +36,10 @@ public class InlineErrorFixSuggestion {
                 msg = String.valueOf(temp);
             }
         }
-        printStream.println(msg);
+        msg = " | " + msg;
+        String padding = " ".repeat(String.valueOf(lineNum).length());
+        printStream.println(padding + " | ");
+        printStream.println(padding + "\b" + lineNum + " | " + originalString);
+        printStream.println(padding + msg);
     }
 }

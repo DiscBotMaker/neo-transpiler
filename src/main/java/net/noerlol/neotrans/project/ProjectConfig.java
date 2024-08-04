@@ -1,7 +1,7 @@
 package net.noerlol.neotrans.project;
 
-import net.noerlol.neotrans.utils.ClassResourceFetcher;
-import org.intellij.lang.annotations.Language;
+import net.noerlol.util.ArrayJoiner;
+import net.noerlol.util.ResourceFetcher;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.error.YAMLException;
 
@@ -14,7 +14,8 @@ public class ProjectConfig {
     public void writeConfig(File file) {
         try {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
-            @Language("yaml") String defaultConfig = ClassResourceFetcher.readFromFile("project.yml", ProjectConfig.class);
+            ResourceFetcher fetcher = new ResourceFetcher(ProjectConfig.class, "project.yml");
+            String defaultConfig = new ArrayJoiner(fetcher.getFileText(), System.lineSeparator()).join();
             writer.write(defaultConfig);
             writer.close();
             loadConfig(file);

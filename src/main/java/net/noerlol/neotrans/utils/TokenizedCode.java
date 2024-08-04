@@ -18,10 +18,6 @@ public class TokenizedCode {
     }
 
     public String getPackageName() {
-        System.out.println(this.code.split("\n")[0]
-                .replace("export ", "")
-                .replace(';', ' ')
-                .trim());
         return this.code
                         .split("\n")[0]
                         .replace("export ", "")

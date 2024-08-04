@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class DynamicImports {
-    private static final String libdbmPackageName = "net.noerlol.discordbotmaker.libdbm";
+    private static final String libdbmPackageName = "dbm.bot";
     public static Import[] getImportsFromCode(String javaCode) {
         ArrayList<Import> imports = new ArrayList<>();
         if (javaCode.contains("Scanner")) {
