@@ -194,7 +194,7 @@ public class Tokenizer {
         if (println || inputln) {
             if (Main.args.isEnabled("Cno-stdlib", true)) {
                 InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
-                errorWriter.println("error: " + "functions from stdlib with options [ -Jno-stdlib ]" + "\n");
+                errorWriter.println("error: " + "functions from stdlib with options [ -Cno-stdlib ]" + "\n");
             }
         }
 
@@ -340,7 +340,7 @@ public class Tokenizer {
                     }
                 } else {
                     InlineErrorFixSuggestion.fix(str, mod, errorWriter, lineNumber);
-                    System.out.println("error: " + "import from stdlib not allowed with javac flag [ -Jno-stdlib ]" + "\n");
+                    System.out.println("error: " + "import from stdlib not allowed with javac flag [ -Cno-stdlib ]" + "\n");
                     errors++;
                 }
             }
