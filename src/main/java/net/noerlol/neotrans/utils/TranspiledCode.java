@@ -1,17 +1,23 @@
 package net.noerlol.neotrans.utils;
 
+import java.io.IOException;
+
 public class TranspiledCode {
     private String code;
+    private final TokenizedCode tokenizedCode;
 
-    public TranspiledCode(String code, String imports) {
+    public TranspiledCode(String code, String imports, TokenizedCode tokenizedCode) {
         this.code = imports + "public class ReplaceThisClassName__NEOTRANSLATER {" + code + "}";
+        this.tokenizedCode = tokenizedCode;
     }
 
     public String getCode() {
-        if (code.contains("ReplaceThisClassName__NEOTRANSLATER")) {
-            throw new IllegalArgumentException("class name was not replaced");
-        }
         return this.code;
+    }
+
+    public void run() throws IOException {
+        ClassWriter classWriter = new ClassWriter();
+        classWriter.write(this, tokenizedCode.getPackageName().replace('.','/') + ".dbm", tokenizedCode.getPackageName());
     }
 
     public void setClassName(String className) {

@@ -13,9 +13,9 @@ public class Mirror {
 
     private static Mirror officialRepo() {
         try {
-            return new Mirror(new URL("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.txt"));
+            return new Mirror(new URL("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.yaml"));
         } catch (MalformedURLException ignored) {
-            throw new IllegalArgumentException("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.txt is not existing?");
+            throw new IllegalArgumentException("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.yaml is not existing?");
         }
     }
 

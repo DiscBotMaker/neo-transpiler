@@ -7,6 +7,9 @@ import net.noerlol.neotrans.utils.TranspiledCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Transpiler {
     private static String transpiledCode = "";
     private static int lineNumber = 1;
@@ -31,7 +34,7 @@ public class Transpiler {
                 inputln = true;
             } else if (str.startsWith("import")) {
                 _import = true;
-            } else if (str.contains("()") && !str.startsWith("fn")) {
+            } else if ((str.contains("(") && str.contains(")")) && !str.startsWith("fn")) {
                 functionUse = true;
             } else if (str.contains("if") && !str.contains("else")) {
                 _if = true;
@@ -89,7 +92,24 @@ public class Transpiler {
                 if (str.startsWith("main")) {
                     transpiledCode += "public static void " + str.replaceAll("\\(", "").replaceAll("\\)", "").replaceAll("\\{", "") + "(String[] args) {";
                 } else {
-                    transpiledCode += "public static void " + str + " {";
+                    if (str.charAt(str.indexOf('(') + 1) != ')') {
+                        transpiledCode += "public static void " + str.substring(0, str.indexOf('(')) + "(";
+                        String b_str = str;
+                        b_str = b_str.replace("fn ", "").replace(" {", "").split("\\(")[1].replace(")", ""); // str as, str at
+                        String[] parameters = b_str.split(",");
+                        for (String parameter : parameters) {
+                            parameter = parameter.trim(); // str: as,str: ad
+                            // str: as// oposite
+                            String[] p = new String[2];
+                            for (int i = 0; i < parameter.split(":").length; i++) {
+                                p[i] = parameter.split(":")[i];
+                            }
+                            transpiledCode += p[0] + " " + p[1] + ",";
+                        }
+                        transpiledCode = transpiledCode.substring(0, transpiledCode.length() - 1) + ") {";
+                    } else {
+                        transpiledCode += "public static void " + str + " {";
+                    }
                 }
             }
 
@@ -98,10 +118,6 @@ public class Transpiler {
             }
 
             if (funEnd) {
-                // DEBUG INJECTION
-                transpiledCode += "System.out.println(System.getProperty(\"java.class.path\"));System.out.println(LibraryVersion.VERSION);";
-
-
                 transpiledCode += "}";
             }
 
@@ -115,6 +131,6 @@ public class Transpiler {
         for (Import _import : imports) {
             str_Imports += "import " +  _import.getPackageName() + "." + _import.getClassName() + ";";
         }
-        return new TranspiledCode(transpiledCode, str_Imports);
+        return new TranspiledCode(transpiledCode, str_Imports, tc);
     }
 }

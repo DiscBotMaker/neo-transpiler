@@ -1,13 +1,13 @@
 package net.noerlol.neotrans.transpiler;
 
-import net.noerlol.neotrans.utils.FileUtils;
-import net.noerlol.neotrans.utils.InlineErrorFixSuggestion;
-import net.noerlol.neotrans.utils.TokenizedCode;
-import net.noerlol.neotrans.utils.Version;
+import net.noerlol.neotrans.Main;
+import net.noerlol.neotrans.api.lsp.LSPOnly;
+import net.noerlol.neotrans.utils.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,12 +27,12 @@ public class Tokenizer {
 
     // Finals
     private final Logger LOGGER = LoggerFactory.getLogger(Tokenizer.class);
-    private final String[] VALID_IMPORTS = {
+    private final String[] SYSTEM_IMPORTS = {
             "dbm.bot.BotProvider",
             "dbm.bot.Bot",
             "dbm.bot.Context",
             "dbm.bot.Command",
-            "dbm.lang.String",
+            "java.lang.String", // Replaced because the preprocessor replaces dbm.lang* with java.lang*
             "dbm.util.Project"
     }; // Todo: Package Manager stuffs
 
@@ -44,6 +44,8 @@ public class Tokenizer {
     // Buffers
     private String b_FunctionName = "";
     private String b_FunctionCode = "";
+    private ArrayList<Map<String, String>> b_FunctionParameters = new ArrayList<>();
+
     private String b_IfElseElseIfCode = "";
 
     private boolean expectingIfElseElseIf = false;
@@ -53,7 +55,9 @@ public class Tokenizer {
         if (macro.equals("__stdversion__")) {
             return Version.STDVERSION;
         } else if (macro.equals("__operating_system__")) {
-            return System.getProperty("os.name");
+            return "\"" + System.getProperty("os.name") + "\"";
+        } else if (macro.equals("__J_classpath__")) {
+            return "\"" + "I need to fix this!!!!" + "\"";
         }
 
         else {
@@ -66,38 +70,79 @@ public class Tokenizer {
         this.fileName = fileName;
     }
 
-    public TokenizedCode parse(ArrayList<String> lines) {
+    public TokenizedCode parse(String[] lines) {
         for (String line : lines) {
-            if (line.contains("__stdversion__")) {
-                line = line.replace("__stdversion__", handleMacro("__stdversion__"));
-            } else if (line.contains("__operating_system__")) {
-                line = line.replace("__operating_system__", handleMacro("__operating__system"));
-            }
-            parseLine(line);
+            // Preprocessor
+            line = line.replace("__stdversion__", handleMacro("__stdversion__"));
+            line = line.replace("__operating_system__", handleMacro("__operating_system__"));
+            line = line.replace("__J_classpath__", handleMacro("__J_classpath__"));
+
+            line = line.replace("string", "String");
+            line = line.replace("dbm.lang", "java.lang");
+
+            // Finally,
+            parseLine(line, System.err);
         }
         return parseEnd();
     }
 
-    private TokenizedCode parseEnd() {
+    public TokenizedCode parseEnd() {
+        PrintStream errorWriter = System.err;
         if (expectingFunction || expectingIfElseElseIf) {
-            InlineErrorFixSuggestion.fix("}", '}', System.err);
-            System.err.println("error: " + "not found" + "\n");
-            System.exit(1);
+            InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
+            errorWriter.println("error: " + "not found" + "\n");
+            errors++;
         } if (!functions.containsKey("fn main() {")) {
-            InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", System.err);
-            System.err.println("error: " + "not found" + "\n");
-            System.exit(1);
+            InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber);
+            errorWriter.println("error: " + "not found" + "\n");
+            errors++;
         } if (errors > 0 || warnings > 0) {
-            System.err.println("errors generated: " + errors);
-            System.err.println("warnings generated: " + warnings);
+            errorWriter.println("errors generated: " + errors);
+            errorWriter.println("warnings generated: " + warnings);
+            if (Main.args.isEnabled("Cexit-on-warn", true)) {
+                System.exit(2);
+            }
         } if (errors > 0) {
-            System.exit(1);
+            if (!Main.args.isEnabled("Cno-exit-on-error", true)) {
+                System.exit(1);
+            }
+        }
+
+        return new TokenizedCode(TOKENIZED, TAB_LENGTH);
+    }
+    @LSPOnly
+    public TokenizedCode NULL_ParseEnd() {
+        PrintStream errorWriter = NullOutputStream.getNull();
+        if (expectingFunction || expectingIfElseElseIf) {
+            InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
+            errorWriter.println("error: " + "not found" + "\n");
+            errors++;
+        } if (!functions.containsKey("fn main() {")) {
+            InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber);
+            errorWriter.println("error: " + "not found" + "\n");
+            errors++;
+        } if (errors > 0 || warnings > 0) {
+            errorWriter.println("errors generated: " + errors);
+            errorWriter.println("warnings generated: " + warnings);
+            if (Main.args.isEnabled("Cexit-on-warn", true)) {
+                System.exit(2);
+            }
+        } if (errors > 0) {
+            if (!Main.args.isEnabled("Cno-exit-on-error", true)) {
+                System.exit(1);
+            }
         }
 
         return new TokenizedCode(TOKENIZED, TAB_LENGTH);
     }
 
-    private void parseLine(String str) {
+    @LSPOnly
+    public String findReplaceMacro(String line) {
+        return line; // Todo: figure this out
+    }
+
+    @LSPOnly
+    public void parseLine(String str, PrintStream errorWriter) {
         boolean functionMake = false, variable = false, statement = false, functionUse = false,
                 whitespace = false, scopeEnd = false, comment = false, println = false,
                 inputln = false, _if = false, _elseIf = false, _else = false, _import = false,
@@ -136,7 +181,7 @@ public class Tokenizer {
             _elseIf = true;
         } else if (!str.contains("if") && str.contains("else")) {
             _else = true;
-        } else if (str.contains("()")) {
+        } else if (str.contains("(") && str.contains(")")) {
             functionUse = true;
         } else if (str.startsWith("export")) {
             export = true;
@@ -146,144 +191,182 @@ public class Tokenizer {
             statement = true;
         }
 
-        if (lineNumber == 1) {
-            if (!export) {
-                InlineErrorFixSuggestion.fix(str, str, System.err);
-                System.err.println("error: " + "expected export path.main" + "\n");
-                errors++;
+        if (println || inputln) {
+            if (Main.args.isEnabled("Cno-stdlib", true)) {
+                InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
+                errorWriter.println("error: " + "functions from stdlib with options [ -Jno-stdlib ]" + "\n");
             }
         }
 
-        if (str.contains("\"")) {
-            int quotes = 0;
-            for (int i = 0; i < str.length(); i++) {
-                if (str.charAt(i) == '"') {
-                    quotes++;
-                }
-            }
-            if ((quotes % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + "\"", '"', System.err);
-                System.err.println("error: " + "unmatched \"" + "\n");
-                errors++;
-            }
-        } else if (str.contains("'")) {
-            int quotes = 0;
-            for (int i = 0; i < str.length(); i++) {
-                if (str.charAt(i) == '\'') {
-                    quotes++;
-                }
-            }
-            if ((quotes % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + "'", '\'', System.err);
-                System.err.println("error: " + "unmatched '" + "\n");
-                errors++;
-            }
-        }
-
-        if (!functionMake && !scopeEnd && !whitespace) {
-            if (!str.endsWith(";")) {
-                InlineErrorFixSuggestion.fix(str + ";", ';', System.err);
-                System.err.println("error: " + "not found" + "\n");
-                errors++;
-            }
-        }
-
-        if (str.contains("(")) {
-            int brackets = 0;
-            for (int i = 0; i < str.length(); i++) {
-                if (str.charAt(i) == '(') {
-                    brackets++;
-                } else if (str.charAt(i) == ')') {
-                    brackets--;
-                }
-            }
-            if ((brackets % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + ")", ')', System.err);
-                System.err.println("error: " + "unmatched (" + "\n");
-                errors++;
-            }
-        }
-
-        if (scopeEnd) {
-            if (!expectingFunction && !expectingIfElseElseIf) {
-                InlineErrorFixSuggestion.fix(str, '}', System.err);
-                errors++;
-            }
-            if (expectingFunction) {
-                expectingFunction = false;
-                functions.put(b_FunctionName, b_FunctionCode);
-                b_FunctionName = ""; b_FunctionCode = "";
-            } else if (expectingIfElseElseIf) {
-                expectingIfElseElseIf = false;
-                b_IfElseElseIfCode = "";
-            }
-        }
-
-        if (functionMake) {
-            if (expectingFunction) {
-                InlineErrorFixSuggestion.fix(str, "fn", System.err);
-                errors++;
-            }
-            b_FunctionName = str;
-            expectingFunction = true;
-        }
-
-        if (variable) {
-            str = str.substring(4); // remove 'var '
-            str = str.replaceAll(" ", "");
-            String[] var_valueMap = str.split("=");
-            if (!functionUse) {
-                if (!(var_valueMap[0].contains(":"))) {
-                    System.err.println("error: " + "expected :<Type> at line: " + lineNumber);
+        if (!comment) {
+            if (lineNumber == 1) {
+                if (!export) {
+                    InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
+                    errorWriter.println("error: " + "expected export path.main" + "\n");
                     errors++;
                 }
+            }
 
-                String[] name_typeMap = var_valueMap[0].split(":");
-                if (variables.containsKey(name_typeMap[0])) {
-                    System.err.println("error: " + "variable already defined at line: " + lineNumber);
+            if (str.contains("\"")) {
+                int quotes = 0;
+                for (int i = 0; i < str.length(); i++) {
+                    if (str.charAt(i) == '"') {
+                        quotes++;
+                    }
+                }
+                if ((quotes % 2) != 0) {
+                    InlineErrorFixSuggestion.fix(str + "\"", '"', errorWriter, lineNumber);
+                    errorWriter.println("error: " + "unmatched \"" + "\n");
                     errors++;
+                }
+            } else if (str.contains("'")) {
+                int quotes = 0;
+                for (int i = 0; i < str.length(); i++) {
+                    if (str.charAt(i) == '\'') {
+                        quotes++;
+                    }
+                }
+                if ((quotes % 2) != 0) {
+                    InlineErrorFixSuggestion.fix(str + "'", '\'', errorWriter, lineNumber);
+                    errorWriter.println("error: " + "unmatched '" + "\n");
+                    errors++;
+                }
+            }
+
+            if (!functionMake && !scopeEnd && !whitespace) {
+                if (!str.endsWith(";")) {
+                    InlineErrorFixSuggestion.fix(str + ";", ';', errorWriter, lineNumber);
+                    errorWriter.println("error: " + "not found" + "\n");
+                    errors++;
+                }
+            }
+
+            if (str.contains("(")) {
+                int brackets = 0;
+                for (int i = 0; i < str.length(); i++) {
+                    if (str.charAt(i) == '(') {
+                        brackets++;
+                    } else if (str.charAt(i) == ')') {
+                        brackets--;
+                    }
+                }
+                if ((brackets % 2) != 0) {
+                    InlineErrorFixSuggestion.fix(str + ")", ')', errorWriter, lineNumber);
+                    errorWriter.println("error: " + "unmatched (" + "\n");
+                    errors++;
+                }
+            }
+
+            if (scopeEnd) {
+                if (!expectingFunction && !expectingIfElseElseIf) {
+                    InlineErrorFixSuggestion.fix(str, '}', errorWriter, lineNumber);
+                    errors++;
+                }
+                if (expectingFunction) {
+                    functions.put(b_FunctionName, b_FunctionCode);
+
+                    // Cleanup
+                    expectingFunction = false;
+                    b_FunctionName = "";
+                    b_FunctionCode = "";
+                    b_FunctionParameters.clear();
+                } else if (expectingIfElseElseIf) {
+                    expectingIfElseElseIf = false;
+                    b_IfElseElseIfCode = "";
+                }
+            }
+
+            if (functionMake) {
+                if (expectingFunction) {
+                    InlineErrorFixSuggestion.fix(str, "fn", errorWriter, lineNumber);
+                    errors++;
+                }
+                b_FunctionName = str;
+                String b_str = str;
+                b_str = b_str.replace("fn ", "").replace(" {", "").split("\\(")[1].replace(")", ""); // str as, str at
+                String[] parameters = b_str.split(",");
+                for (String parameter : parameters) {
+                    parameter = parameter.trim(); // str: as,str: ad
+                    // str: as// oposite
+                    Map<String, String> b = new HashMap<>();
+                    String[] p = new String[2];
+                    for (int i = 0; i < parameter.split(":").length; i++) {
+                        p[i] = parameter.split(":")[i];
+                    }
+                    b.put(p[0], p[1]);
+                    b_FunctionParameters.add(b);
+                }
+                expectingFunction = true;
+            }
+
+            if (variable) {
+                str = str.substring(4); // remove 'var '
+                str = str.replaceAll(" ", "");
+                String[] var_valueMap = str.split("=");
+                if (!functionUse) {
+                    if (!(var_valueMap[0].contains(":"))) {
+                        errorWriter.println("error: " + "expected :<Type> at line: " + lineNumber);
+                        errors++;
+                    }
+
+                    String[] name_typeMap = var_valueMap[0].split(":");
+                    if (variables.containsKey(name_typeMap[0])) {
+                        errorWriter.println("error: " + "variable already defined at line: " + lineNumber);
+                        errors++;
+                    } else {
+                        v_PutKey(name_typeMap[0], name_typeMap[1], var_valueMap[1]);
+                        // name, type, value
+                    }
+                }
+                str = "var " + str; // re-added 'var '
+            }
+
+            if (_if) {
+                expectingIfElseElseIf = true;
+            }
+
+            if (_import) {
+                String mod = str.replace("import", "").trim().replace(';', ' ').trim();
+                if (!(mod.startsWith("dbm") && Main.args.isEnabled("Cno-stdlib", true))) {
+                    if (!(new ArrayList<>(List.of(SYSTEM_IMPORTS)).contains(mod))) { // Todo: use package manager verification
+                        ArrayList<File> dirs = new FileUtils().listFiles(new File("."));
+                        for (File file : dirs) {
+                            if (!file.getPath().contains(mod.split("\\.")[0])) {
+                                InlineErrorFixSuggestion.fix(str, mod, errorWriter, lineNumber);
+                                errorWriter.println("error: " + "illegal import" + "\n");
+                                errors++;
+                            }
+                        }
+                    }
                 } else {
-                    v_PutKey(name_typeMap[0], name_typeMap[1], var_valueMap[1]);
-                    // name, type, value
+                    InlineErrorFixSuggestion.fix(str, mod, errorWriter, lineNumber);
+                    System.out.println("error: " + "import from stdlib not allowed with javac flag [ -Jno-stdlib ]" + "\n");
+                    errors++;
                 }
             }
-            str = "var " + str; // re-added 'var '
-        }
 
-        if (_if) {
-            expectingIfElseElseIf = true;
-        }
-
-        if (_import) {
-            String mod = str.replace("import", "").trim().replace(';', ' ').trim();
-            if (!(new ArrayList<>(List.of(VALID_IMPORTS)).contains(mod))) { // Todo: use package manager verification
-                InlineErrorFixSuggestion.fix(str, mod, System.err);
-                System.err.println("error: " + "import not found" + "\n");
-                errors++;
+            if (stringconcat) {
+                if (str.contains("\"") && Pattern.compile("\\d").matcher(str).find()) {
+                    String nums = Pattern.compile("[a-zA-Z]").matcher(str).replaceAll("");
+                    InlineErrorFixSuggestion.fix(str, nums, errorWriter, lineNumber);
+                    errorWriter.println("error: string concatenation with number");
+                    errors++;
+                }
             }
-        }
 
-        if (stringconcat) {
-            if (str.contains("\"") && Pattern.compile("\\d").matcher(str).find()) {
-                String nums = Pattern.compile("[a-zA-Z]").matcher(str).replaceAll("");
-                InlineErrorFixSuggestion.fix(str, nums, System.err);
-                System.err.println("error: string concatenation with number");
-                errors++;
+            // Finalizers
+            if (expectingFunction && !statement) {
+                b_FunctionCode += str + "\n";
             }
-        }
 
-        // Finalizers
-        if (expectingFunction && !statement) {
-            b_FunctionCode += str + "\n";
-        }
-
-        if (!whitespace && !comment && !statement) {
-            TOKENIZED += str + "\n";
+            if (!whitespace && !statement) {
+                TOKENIZED += str + "\n";
+            }
         }
         lineNumber++;
     }
 
     private void v_PutKey(String var1, String var2, String var3) {
-        variables.computeIfAbsent(var1, k -> new HashMap<>()).put(var2, var3);
+        variables.computeIfAbsent(var1, ignored -> new HashMap<>()).put(var2, var3);
     }
 }

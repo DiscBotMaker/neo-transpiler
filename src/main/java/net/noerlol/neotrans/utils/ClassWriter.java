@@ -1,20 +1,18 @@
 package net.noerlol.neotrans.utils;
 
-import net.noerlol.neotrans.utils.TranspiledCode;
+import net.noerlol.neotrans.Main;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
 import java.io.*;
 import java.nio.file.*;
-import java.util.ArrayList;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
 
 public class ClassWriter {
     private static final String BUILD_CACHE = ".build-cache";
 
-    public static TimeSignature write(TranspiledCode code, String fileName, String packageName) throws IOException {
+    public TimeSignature write(TranspiledCode code, String fileName, String packageName) throws IOException {
         long uid = System.currentTimeMillis();
 
         // Capitalize class name
@@ -37,7 +35,11 @@ public class ClassWriter {
         }
 
         // Compile to .class files
-        compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), "lib" + File.separator + "libdbm" + Version.libdbm_VERSION + ".jar:lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar");
+        if (!Main.args.isEnabled("Cno-stdlib", true)) {
+            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar:lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar");
+        } else {
+            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), ".");
+        }
 
         // Create JAR file
         createJarFile(basePath.resolve("classes" + File.separator + "src").toFile(), "build" + File.separator + "compiled" + ".jar", uid);
@@ -45,14 +47,14 @@ public class ClassWriter {
         return new TimeSignature(uid);
     }
 
-    private static String capitalizeClassName(String name) {
+    private String capitalizeClassName(String name) {
         if (name == null || name.isEmpty()) {
             return name;
         }
         return Character.toUpperCase(name.charAt(0)) + name.substring(1);
     }
 
-    private static void compileToClasses(String sourceFolder, String outputFolder, String classpath) {
+    private void compileToClasses(String sourceFolder, String outputFolder, String classpath) {
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         File[] files = new File(sourceFolder).listFiles();
         if (files != null) {
@@ -68,7 +70,7 @@ public class ClassWriter {
         }
     }
 
-    private static void createJarFile(File pathToClasses, String pathToFinalJar, long uid) throws IOException {
+    private void createJarFile(File pathToClasses, String pathToFinalJar, long uid) throws IOException {
         if (!pathToClasses.isDirectory()) {
             throw new IllegalArgumentException("argument not a directory");
         }
@@ -80,7 +82,7 @@ public class ClassWriter {
         }
     }
 
-    private static void addFilesToJar(File source, JarOutputStream jos, int basePathLength) throws IOException {
+    private void addFilesToJar(File source, JarOutputStream jos, int basePathLength) throws IOException {
         File[] files = source.listFiles();
         if (files != null) {
             for (File file : files) {
@@ -105,7 +107,7 @@ public class ClassWriter {
         }
     }
 
-    private static String getPackageNameFromPath(String baseDir, String filePath) {
+    private String getPackageNameFromPath(String baseDir, String filePath) {
         baseDir = baseDir.replace(File.separator, "/");
         filePath = filePath.replace(File.separator, "/");
 
