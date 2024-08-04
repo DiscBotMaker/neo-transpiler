@@ -15,7 +15,7 @@ Here `-S` is shorthand for `--setup` and sets up the files and folders in the cu
 ```sh
 > neotrans -b
 ```
-Here `-b` is shorthand for `--build` with the output in the `dist/` directory
+Here `-b` is shorthand for `--build` with the output in the `build/` directory
 
 ### Running
 
