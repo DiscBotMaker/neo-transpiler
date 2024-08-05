@@ -4,17 +4,10 @@ import net.noerlol.neotrans.utils.DynamicImports;
 import net.noerlol.neotrans.utils.Import;
 import net.noerlol.neotrans.utils.TokenizedCode;
 import net.noerlol.neotrans.utils.TranspiledCode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class Transpiler {
     private static String transpiledCode = "";
     private static int lineNumber = 1;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(Transpiler.class);
 
     public static TranspiledCode transpile(TokenizedCode tc) {
         for (String str : tc.getCode().split("\\n")) {

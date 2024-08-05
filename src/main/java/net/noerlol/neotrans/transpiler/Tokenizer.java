@@ -3,8 +3,6 @@ package net.noerlol.neotrans.transpiler;
 import net.noerlol.neotrans.Main;
 import net.noerlol.neotrans.api.lsp.LSPOnly;
 import net.noerlol.neotrans.utils.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.PrintStream;
@@ -26,7 +24,6 @@ public class Tokenizer {
     private int warnings = 0;
 
     // Finals
-    private final Logger LOGGER = LoggerFactory.getLogger(Tokenizer.class);
     private final String[] SYSTEM_IMPORTS = {
             "dbm.bot.BotProvider",
             "dbm.bot.Bot",

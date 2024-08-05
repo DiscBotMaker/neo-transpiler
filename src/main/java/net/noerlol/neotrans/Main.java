@@ -8,8 +8,6 @@ import net.noerlol.neotrans.transpiler.Transpiler;
 import net.noerlol.neotrans.utils.*;
 import net.noerlol.util.ArrayJoiner;
 import net.noerlol.util.ResourceFetcher;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,11 +18,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
+// Todo: Make a GUI for it
 
 public class Main {
-    // LOGGER
-    public static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
     public static CommandLineArgumentsHandler args;
     private static final ProjectConfig config = new ProjectConfig();
 
