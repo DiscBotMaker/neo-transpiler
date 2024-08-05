@@ -19,6 +19,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 // Todo: Make a GUI for it
+// Todo: Add argv, argc to System library
 
 public class Main {
     public static CommandLineArgumentsHandler args;
