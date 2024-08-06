@@ -8,6 +8,18 @@
     <artifactId>NeoTranspiler</artifactId>
     <version>1.0.1-RELEASE</version>
 
+    <name>NeoTranspiler</name>
+    <description>The transpiler/compiler utility for DBMScript</description>
+    <url>https://github.com/DiscBotMaker/neo-transpiler</url>
+
+    <licenses>
+        <license>
+            <name>GNU General Public License, Version 3</name>
+            <url>https://www.gnu.org/licenses/gpl-3.0.html</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
