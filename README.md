@@ -5,6 +5,12 @@ All-in-one transpiler utility for DBMScript supporting every version standard si
 [libutil](https://github.com/xNoerPlaysCodes/libutil) - Utils library (net.noerlol.util)          <br>
 [libcli](https://github.com/xNoerPlaysCodes/libcli)   - Cli Args library (net.noerlol.cliargs)
 
+# API
+## Install [WIP]
+```sh
+> echo "Working on it!"
+```
+
 # Example Usage
 
 ### Setting up your environment
