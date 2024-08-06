@@ -1,6 +1,10 @@
 # neo-transpiler
 All-in-one transpiler utility for DBMScript supporting every version standard since v1.0
 
+## Libraries
+[libutil](https://github.com/xNoerPlaysCodes/libutil) - Utils library (net.noerlol.util)          <br>
+[libcli](https://github.com/xNoerPlaysCodes/libcli)   - Cli Args library (net.noerlol.cliargs)
+
 # Example Usage
 
 ### Setting up your environment
