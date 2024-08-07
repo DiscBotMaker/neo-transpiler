@@ -41,7 +41,7 @@ public class Main {
             config.writeConfig(new File("project.yml"));
             LibraryDownloader libraryDownloader;
             if (config.getString("library_mirror").equals("OFFICIAL")) {
-                libraryDownloader = new LibraryDownloader(Mirror.officialMirror);
+                libraryDownloader = new LibraryDownloader(Mirror.OFFICIAL_MIRROR);
             } else {
                 libraryDownloader = new LibraryDownloader(new Mirror(new URL(config.getString("library_mirror"))));
             }
@@ -83,7 +83,7 @@ public class Main {
             // Running
             transpiledCode.run();
         } if (args.isEnabled("r", true) || args.isEnabled("run", false)) {
-            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + ":lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + ":build" + File.separator + "compiled.jar",  "src.Main");
+            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "build" + File.separator + "compiled.jar",  "src.Main");
             Process p = pb.start();
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
                 String line;
@@ -97,12 +97,12 @@ public class Main {
                 config.loadConfig(new File("project.yml"));
                 String mirrorUrl = config.getString("library_mirror");
                 if (mirrorUrl.equals("OFFICIAL")) {
-                    mirror = Mirror.officialMirror;
+                    mirror = Mirror.OFFICIAL_MIRROR;
                 } else {
                     mirror = new Mirror(new URL(mirrorUrl));
                 }
             } else {
-                mirror = Mirror.officialMirror;
+                mirror = Mirror.OFFICIAL_MIRROR;
                 System.out.println("using default mirror");
             }
             new LibraryDownloader(mirror).download();

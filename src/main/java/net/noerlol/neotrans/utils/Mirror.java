@@ -5,7 +5,7 @@ import java.net.URL;
 
 public class Mirror {
     private final URL url;
-    public static Mirror officialMirror = officialRepo();
+    public static Mirror OFFICIAL_MIRROR = officialRepo();
 
     public Mirror(URL url) {
         this.url = url;

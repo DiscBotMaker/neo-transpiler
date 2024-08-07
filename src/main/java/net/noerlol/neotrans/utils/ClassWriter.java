@@ -36,14 +36,13 @@ public class ClassWriter {
 
         // Compile to .class files
         if (!Main.args.isEnabled("Cno-stdlib", true)) {
-            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar:lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar");
+            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar");
         } else {
             compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), ".");
         }
 
         // Create JAR file
         createJarFile(basePath.resolve("classes" + File.separator + "src").toFile(), "build" + File.separator + "compiled" + ".jar", uid);
-
         return new TimeSignature(uid);
     }
 
