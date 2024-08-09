@@ -1,6 +1,8 @@
 package net.noerlol.neotrans;
 
+import com.formdev.flatlaf.FlatDarculaLaf;
 import net.noerlol.cliargs.CommandLineArgumentsHandler;
+import net.noerlol.neotrans.gui.NeoGUI;
 import net.noerlol.neotrans.project.ProjectConfig;
 import net.noerlol.neotrans.project.ProjectCreator;
 import net.noerlol.neotrans.transpiler.Tokenizer;
@@ -9,6 +11,7 @@ import net.noerlol.neotrans.utils.*;
 import net.noerlol.util.ArrayJoiner;
 import net.noerlol.util.ResourceFetcher;
 
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -18,17 +21,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-// Todo: Make a GUI for it
-// Todo: Add argv, argc to System library
 
 public class Main {
     public static CommandLineArgumentsHandler args;
     private static final ProjectConfig config = new ProjectConfig();
 
     private Main(String[] cliArgs) throws Exception {
-        args = new CommandLineArgumentsHandler(cliArgs, "-Dstd", "-Cstd");
+        args = new CommandLineArgumentsHandler(cliArgs, "-Dstd", "-Cstd", "-Gpath");
         boolean showDebugHelp = false;
-        if (args.isEnabled("DEBUG--help", false) || Version.RELEASE_TYPE.equals("DEBUG")) {
+        if (args.isEnabled("DEBUG--help", false) || Version.RELEASE_TYPE.equals("DEV")) {
             showDebugHelp = true;
         }
         if (args.isEnabled("d", true) || args.isEnabled("debug", false)) {
@@ -149,6 +150,15 @@ language level: %languagelevel%
             msg = msg.replace("%version%", Version.VERSION).replace("%os%", System.getProperty("os.name")).replace("%type%", Version.RELEASE_TYPE).replace("%authors%", Version.AUTHORS).replace("%languagelevel%", Version.STDVERSION);
             System.out.println(msg);
             System.exit(0);
+        } if (args.isEnabled("gui", false) || args.isEnabled("g", true)) {
+            if (Version.RELEASE_TYPE.equals("RELEASE")) {
+                if (!args.isEnabled("DEBUG--override", false)) {
+                    System.err.println("error: using unfinished options in release mode\nadd option --DEBUG--override to override");
+                    System.exit(1);
+                }
+            }
+            UIManager.setLookAndFeel(new FlatDarculaLaf());
+            NeoGUI gui = new NeoGUI();
         }
 
         if (args.isEmpty()) {

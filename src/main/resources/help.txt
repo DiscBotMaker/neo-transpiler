@@ -14,6 +14,10 @@ options:
                                     └> -Dstd<std> is optional, but if mentioned then will use that stdlib version, like -Dstd 1, -Dstd 2 etc
     [--simple   |   -s] -> will not use any graphics at all only plain text
 
+gui options:
+    [--gui      |   -g] -> starts the gui
+           -Gpath<path> -> (optional) replace 'path' with the path to project.yml file
+
 compiler options:
     start with -C<option> and do not have a shorthand
     [-Cno-exit-on-error     ] -> tells compiler to not exit on close
