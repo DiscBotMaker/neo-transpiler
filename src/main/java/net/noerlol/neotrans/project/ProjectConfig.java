@@ -1,5 +1,7 @@
 package net.noerlol.neotrans.project;
 
+import net.noerlol.neotrans.utils.Mirror;
+import net.noerlol.neotrans.utils.Version;
 import net.noerlol.util.ArrayJoiner;
 import net.noerlol.util.Config;
 import net.noerlol.util.ResourceFetcher;
@@ -13,6 +15,7 @@ public class ProjectConfig extends Config {
             BufferedWriter writer = new BufferedWriter(new FileWriter(file));
             ResourceFetcher fetcher = new ResourceFetcher(ProjectConfig.class, "project.yml");
             String defaultConfig = new ArrayJoiner(fetcher.getFileText(), System.lineSeparator()).join();
+            defaultConfig = defaultConfig.replace("%version%", Version.VERSION).replace("%officialMirror%", Mirror.OFFICIAL_MIRROR.getUrl().toString());
             writer.write(defaultConfig);
             writer.close();
             loadConfig(file);

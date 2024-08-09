@@ -162,7 +162,8 @@ language level: %languagelevel%
         }
 
         if (args.isEmpty()) {
-            System.out.println("No options provided, use [--help | -h] to get more info");System.exit(1);
+            System.out.println("No options provided, use [--help | -h] to get more info");
+            System.exit(1);
         }
     }
 

@@ -27,7 +27,7 @@ public final class LibraryDownloader {
         boolean doStdlibDownload = true;
         if (Main.args.isEnabled("Dstd", true)) {
             if (!stdlib.get("version").equals(Main.args.getOption("Dstd").getValue())) {
-                System.err.println("invalid option or mirror");
+                System.err.println("error: invalid option or mirror");
                 System.err.println("mirror version: " + stdlib.get("version"));
                 System.err.println("option version: " + Main.args.getOption("Dstd").getValue());
                 System.err.println("will skip...\n");

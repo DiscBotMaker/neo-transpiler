@@ -1,9 +1,9 @@
 # project.yml
-version: "1.0.0-DEV"
+version: "%version%"
 # ^^^ do not change, it WILL break your config
 
 # mirror to download libraries from, if you do not know what this is, ignore it
-library_mirror: "OFFICIAL"
+library_mirror: "%officialMirror%"
 
 project:
   # number of tabs to use in your project
@@ -25,6 +25,8 @@ project:
   # GitHub repository
   github_repository: "https://github.com/Author/MyExampleProject"
 
-package_manager:
-  name: "dpm" # name of the package manager
-  directory: ".dpm" # directory to store downloaded libraries
+build:
+  build_system: "NTBuild"
+  package_manager:
+    name: "dpm" # name of the package manager
+    directory: ".dpm" # directory to store downloaded libraries

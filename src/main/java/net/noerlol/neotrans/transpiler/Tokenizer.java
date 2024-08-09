@@ -325,7 +325,7 @@ public class Tokenizer {
             if (_import) {
                 String mod = str.replace("import", "").trim().replace(';', ' ').trim();
                 if (!(mod.startsWith("dbm") && Main.args.isEnabled("Cno-stdlib", true))) {
-                    if (!(new ArrayList<>(List.of(SYSTEM_IMPORTS)).contains(mod))) { // Todo: use package manager verification
+                    if (!(new ArrayList<>(List.of(SYSTEM_IMPORTS)).contains(mod))) {
                         ArrayList<File> dirs = new FileUtils().listFiles(new File("."));
                         for (File file : dirs) {
                             if (!file.getPath().contains(mod.split("\\.")[0])) {

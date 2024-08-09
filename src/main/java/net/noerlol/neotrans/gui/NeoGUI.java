@@ -33,7 +33,7 @@ public class NeoGUI extends JFrame {
         super.setLayout(new BorderLayout());
 
         JPanel panel_ProjectConfig = new JPanel();
-        panel_ProjectConfig.add(glVersion); // Todo: in project.yml, add the %% things and shit
+        panel_ProjectConfig.add(glVersion);
         glVersion.setText(Version.VERSION);
         glVersion.setToolTipText("GlVersion");
         panel_ProjectConfig.add(tab_length);
@@ -117,7 +117,7 @@ public class NeoGUI extends JFrame {
                     name.setText(projectConfig.getString("project.name"));
                     version.setText(projectConfig.getString("project.version"));
                     author.setText(projectConfig.getString("project.author"));
-                    github.setText(projectConfig.getString("project.github_repository")); // Todo: add text above the textbox
+                    github.setText(projectConfig.getString("project.github_repository"));
                 }
             }
         });
