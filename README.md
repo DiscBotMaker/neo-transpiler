@@ -6,7 +6,7 @@
     <a href="https://github.com/vyfor/cord.nvim/forks"><img src="https://img.shields.io/github/forks/vyfor/cord.nvim?style=for-the-badge" alt="Forks"></a>
   </div>
   <h3>🚀 <strong>NeoTranspiler</strong> is a compiler utility for DBMScript, a custom programming language, all written in Java</h3>
-  <img src="https://github.com/vyfor/cord.nvim/assets/92883017/d2e46243-2bef-4c73-bb3f-6d10edc2a2f4" alt="Cord Banner">
+<!--   <img src="https://github.com/vyfor/cord.nvim/assets/92883017/d2e46243-2bef-4c73-bb3f-6d10edc2a2f4" alt="Cord Banner"> -->
 </div>
 
 ## Libraries
