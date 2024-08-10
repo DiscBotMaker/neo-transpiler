@@ -12,7 +12,7 @@ public class Transpiler {
     public static TranspiledCode transpile(TokenizedCode tc) {
         for (String str : tc.getCode().split("\\n")) {
             str = str;
-            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false;
+            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, print = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false;
             if (str.startsWith("fn ")) {
                 functionMake = true;
             } else if (str.startsWith("var ")) {
@@ -25,6 +25,8 @@ public class Transpiler {
                 println = true;
             } else if (str.contains("inputln")) {
                 inputln = true;
+            } else if (str.contains("print") && !str.contains("println")) {
+                print = true;
             } else if (str.startsWith("import")) {
                 _import = true;
             } else if ((str.contains("(") && str.contains(")")) && !str.startsWith("fn")) {
@@ -50,6 +52,12 @@ public class Transpiler {
                 str = str.replaceAll(";", ""); // "hello, wrld!"
                 transpiledCode += "System.out.print(" + str + ");";
                 transpiledCode += "new Scanner(System.in).nextLine();";
+            } else if (print) {
+                str = str.replaceAll("print", ""); // ("hello, wrld!");
+                str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                str = str.replaceAll(";", ""); // "hello, wrld!"
+                transpiledCode += "System.out.print(" + str + ");";
             }
 
             if (variable) {

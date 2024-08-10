@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Tokenizer {
@@ -141,9 +142,8 @@ public class Tokenizer {
     @LSPOnly
     public void parseLine(String str, PrintStream errorWriter) {
         boolean functionMake = false, variable = false, statement = false, functionUse = false,
-                whitespace = false, scopeEnd = false, comment = false, println = false,
-                inputln = false, _if = false, _elseIf = false, _else = false, _import = false,
-                export = false, stringconcat = false;
+                whitespace = false, scopeEnd = false, comment = false, stdlib_function = false,
+                _if = false, _elseIf = false, _else = false, _import = false, export = false, stringconcat = false;
 
         String modifiedStr = "";
         for (int i = 0; i < str.length(); i++) {
@@ -166,10 +166,8 @@ public class Tokenizer {
             scopeEnd = true;
         } else if (str.startsWith("//")) {
             comment = true;
-        } else if (str.contains("println")) {
-            println = true;
-        } else if (str.contains("inputln")) {
-            inputln = true;
+        } else if (str.contains("println") || str.contains("inputln") || (str.contains("print") && !str.contains("println"))) {
+            stdlib_function = true;
         } else if (str.startsWith("import")) {
             _import = true;
         } else if (str.contains("if") && !str.contains("else")) {
@@ -188,7 +186,7 @@ public class Tokenizer {
             statement = true;
         }
 
-        if (println || inputln) {
+        if (stdlib_function) {
             if (Main.args.isEnabled("Cno-stdlib", true)) {
                 InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
                 errorWriter.println("error: " + "functions from stdlib with options [ -Cno-stdlib ]" + "\n");

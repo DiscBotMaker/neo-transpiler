@@ -38,7 +38,7 @@ public final class LibraryDownloader {
         if (doStdlibDownload) {
             System.out.print("download stdlib" + stdlib.get("version") + " ");
             int r2;
-            r2 = downloadLib(Library.LIBDBM);
+            r2 = downloadLib(Library.STDLIB);
             if (r2 != 99) {
                 System.out.println("\b\b\b\b" + "100%]");
             }
@@ -81,7 +81,7 @@ public final class LibraryDownloader {
             libraryUrl = new URL(jda.get("url"));
             fileName = jda.get("filename").replace('/', File.separatorChar);
         }
-        else if (library.equals(Library.LIBDBM)) {
+        else if (library.equals(Library.STDLIB)) {
             libraryUrl = new URL(stdlib.get("url"));
             fileName = stdlib.get("filename").replace('/', File.separatorChar);
         }
