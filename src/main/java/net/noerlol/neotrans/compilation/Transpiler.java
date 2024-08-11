@@ -1,4 +1,4 @@
-package net.noerlol.neotrans.transpiler;
+package net.noerlol.neotrans.compilation;
 
 import net.noerlol.neotrans.utils.DynamicImports;
 import net.noerlol.neotrans.utils.Import;

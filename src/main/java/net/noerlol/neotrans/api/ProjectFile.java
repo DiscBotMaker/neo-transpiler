@@ -1,16 +1,14 @@
-package net.noerlol.neotrans.api.lsp;
+package net.noerlol.neotrans.api;
 
 import net.noerlol.neotrans.project.ProjectConfig;
-import net.noerlol.neotrans.transpiler.Tokenizer;
-import net.noerlol.neotrans.transpiler.Transpiler;
+import net.noerlol.neotrans.compilation.Tokenizer;
+import net.noerlol.neotrans.compilation.Transpiler;
 import net.noerlol.neotrans.utils.NullOutputStream;
 import net.noerlol.neotrans.utils.StoredPrintStream;
 import net.noerlol.neotrans.utils.TokenizedCode;
 import net.noerlol.neotrans.utils.TranspiledCode;
-import net.noerlol.util.FastArray;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -43,7 +41,7 @@ public class ProjectFile {
     }
 
     public void run() throws IOException {
-        TokenizedCode tokenizedCode = tokenizer.NULL_ParseEnd();
+        TokenizedCode tokenizedCode = tokenizer.parseEnd(NullOutputStream.getNull());
         TranspiledCode transpiledCode = Transpiler.transpile(tokenizedCode);
         transpiledCode.run();
     }

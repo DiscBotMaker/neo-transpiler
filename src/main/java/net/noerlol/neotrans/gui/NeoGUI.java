@@ -1,6 +1,7 @@
 package net.noerlol.neotrans.gui;
 
 import net.noerlol.neotrans.Main;
+import net.noerlol.neotrans.api.ProceduralMethod;
 import net.noerlol.neotrans.project.ProjectConfig;
 import net.noerlol.neotrans.utils.PlatformSpecific;
 import net.noerlol.neotrans.utils.Version;
@@ -132,11 +133,9 @@ public class NeoGUI extends JFrame {
     }
 
     private void handleProcessOutput(Process process) throws IOException {
-        // Capture the output from the process
         BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
         String line;
         while ((line = reader.readLine()) != null) {
-            // Redirect the output to your custom function
             console.console.appendText(line);
         }
     }

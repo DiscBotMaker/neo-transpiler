@@ -5,8 +5,8 @@ import net.noerlol.cliargs.CommandLineArgumentsHandler;
 import net.noerlol.neotrans.gui.NeoGUI;
 import net.noerlol.neotrans.project.ProjectConfig;
 import net.noerlol.neotrans.project.ProjectCreator;
-import net.noerlol.neotrans.transpiler.Tokenizer;
-import net.noerlol.neotrans.transpiler.Transpiler;
+import net.noerlol.neotrans.compilation.Tokenizer;
+import net.noerlol.neotrans.compilation.Transpiler;
 import net.noerlol.neotrans.utils.*;
 import net.noerlol.util.ArrayJoiner;
 import net.noerlol.util.ResourceFetcher;
@@ -33,8 +33,10 @@ public class Main {
             showDebugHelp = true;
         }
         if (args.isEnabled("d", true) || args.isEnabled("debug", false)) {
-            {
+            if (!Version.RELEASE_TYPE.equals("DEV")) {
                 System.out.println("not a debug build");
+            } else {
+                System.out.println("nothing here!");
             }
             System.exit(0);
         } if (args.isEnabled("S", true) || args.isEnabled("setup", false)) {

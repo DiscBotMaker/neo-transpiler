@@ -1,11 +1,11 @@
-package net.noerlol.neotrans.api.lsp;
+package net.noerlol.neotrans.api;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 @Target({ElementType.TYPE, ElementType.METHOD, ElementType.FIELD})
-public @interface LSPOnly {
+public @interface InDevelopment {
 }

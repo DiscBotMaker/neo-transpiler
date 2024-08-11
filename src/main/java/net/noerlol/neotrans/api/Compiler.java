@@ -1,7 +1,7 @@
 package net.noerlol.neotrans.api;
 
-import net.noerlol.neotrans.transpiler.Tokenizer;
-import net.noerlol.neotrans.transpiler.Transpiler;
+import net.noerlol.neotrans.compilation.Tokenizer;
+import net.noerlol.neotrans.compilation.Transpiler;
 import net.noerlol.neotrans.utils.TokenizedCode;
 import net.noerlol.neotrans.utils.TranspiledCode;
 

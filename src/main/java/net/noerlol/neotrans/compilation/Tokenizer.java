@@ -1,7 +1,9 @@
-package net.noerlol.neotrans.transpiler;
+package net.noerlol.neotrans.compilation;
 
 import net.noerlol.neotrans.Main;
-import net.noerlol.neotrans.api.lsp.LSPOnly;
+import net.noerlol.neotrans.api.InDevelopment;
+import net.noerlol.neotrans.api.InDevelopmentError;
+import net.noerlol.neotrans.api.APIOnly;
 import net.noerlol.neotrans.utils.*;
 
 import java.io.File;
@@ -10,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Tokenizer {
@@ -49,43 +50,38 @@ public class Tokenizer {
     private boolean expectingIfElseElseIf = false;
     private boolean expectingFunction = false;
 
-    private String handleMacro(String macro) {
-        if (macro.equals("__stdversion__")) {
-            return Version.STDVERSION;
-        } else if (macro.equals("__operating_system__")) {
-            return "\"" + System.getProperty("os.name") + "\"";
-        } else if (macro.equals("__J_classpath__")) {
-            return "\"" + "I need to fix this!!!!" + "\"";
-        }
-
-        else {
-            return macro;
-        }
-    }
-
     public Tokenizer(int TAB_LENGTH, String fileName) {
         this.TAB_LENGTH = TAB_LENGTH;
         this.fileName = fileName;
     }
 
     public TokenizedCode parse(String[] lines) {
-        for (String line : lines) {
-            // Preprocessor
-            line = line.replace("__stdversion__", handleMacro("__stdversion__"));
-            line = line.replace("__operating_system__", handleMacro("__operating_system__"));
-            line = line.replace("__J_classpath__", handleMacro("__J_classpath__"));
+        return parse(lines, System.err);
+    }
 
-            line = line.replace("string", "String");
-            line = line.replace("dbm.lang", "java.lang");
+    /**
+     * Compiles code into Tokenized Code
+     * @param lines The lines of code
+     * @param errorWriter The error writer to write errors to
+     * @return
+     */
+    public TokenizedCode parse(String[] lines, PrintStream errorWriter) {
+        for (String line : lines) {
+            line = Preprocessor.processLine(line);
 
             // Finally,
-            parseLine(line, System.err);
+            parseLine(line, errorWriter);
         }
-        return parseEnd();
+        return parseEnd(errorWriter);
     }
 
-    public TokenizedCode parseEnd() {
-        PrintStream errorWriter = System.err;
+    /**
+     * Only used by API users & this class
+     * @param errorWriter The PrintStream to be used to write errors to
+     * @return The Tokenized code
+     */
+    @APIOnly
+    public TokenizedCode parseEnd(PrintStream errorWriter) {
         if (expectingFunction || expectingIfElseElseIf) {
             InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
             errorWriter.println("error: " + "not found" + "\n");
@@ -108,38 +104,14 @@ public class Tokenizer {
 
         return new TokenizedCode(TOKENIZED, TAB_LENGTH);
     }
-    @LSPOnly
-    public TokenizedCode NULL_ParseEnd() {
-        PrintStream errorWriter = NullOutputStream.getNull();
-        if (expectingFunction || expectingIfElseElseIf) {
-            InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
-            errorWriter.println("error: " + "not found" + "\n");
-            errors++;
-        } if (!functions.containsKey("fn main() {")) {
-            InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber);
-            errorWriter.println("error: " + "not found" + "\n");
-            errors++;
-        } if (errors > 0 || warnings > 0) {
-            errorWriter.println("errors generated: " + errors);
-            errorWriter.println("warnings generated: " + warnings);
-            if (Main.args.isEnabled("Cexit-on-warn", true)) {
-                System.exit(2);
-            }
-        } if (errors > 0) {
-            if (!Main.args.isEnabled("Cno-exit-on-error", true)) {
-                System.exit(1);
-            }
-        }
 
-        return new TokenizedCode(TOKENIZED, TAB_LENGTH);
-    }
-
-    @LSPOnly
+    @InDevelopment
+    @APIOnly
     public String findReplaceMacro(String line) {
-        return line; // Todo: figure this out
+        throw new InDevelopmentError("using net.noerlol.neotrans.compilation.Tokenizer.findReplaceMacro()");
     }
 
-    @LSPOnly
+    @APIOnly
     public void parseLine(String str, PrintStream errorWriter) {
         boolean functionMake = false, variable = false, statement = false, functionUse = false,
                 whitespace = false, scopeEnd = false, comment = false, stdlib_function = false,

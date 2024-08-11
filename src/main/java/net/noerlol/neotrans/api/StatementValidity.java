@@ -1,4 +1,4 @@
-package net.noerlol.neotrans.api.lsp;
+package net.noerlol.neotrans.api;
 
 public class StatementValidity {
     private final String errorMessage;

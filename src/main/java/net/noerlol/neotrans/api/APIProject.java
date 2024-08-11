@@ -1,4 +1,4 @@
-package net.noerlol.neotrans.api.lsp;
+package net.noerlol.neotrans.api;
 
 import net.noerlol.neotrans.project.ProjectConfig;
 
