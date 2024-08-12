@@ -7,15 +7,17 @@ public class Mirror {
     private final URL url;
     public static Mirror OFFICIAL_MIRROR = officialRepo();
 
+    private static final String MIRROR_URL = "https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.yaml";
+
     public Mirror(URL url) {
         this.url = url;
     }
 
     private static Mirror officialRepo() {
         try {
-            return new Mirror(new URL("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.yaml"));
+            return new Mirror(new URL(MIRROR_URL));
         } catch (MalformedURLException ignored) {
-            throw new IllegalArgumentException("https://raw.githubusercontent.com/DiscBotMaker/important-links/main/classurl.yaml is not existing?");
+            throw new IllegalArgumentException(MIRROR_URL + " does not exist.. [?]");
         }
     }
 

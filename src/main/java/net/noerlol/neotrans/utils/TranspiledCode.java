@@ -1,5 +1,7 @@
 package net.noerlol.neotrans.utils;
 
+import net.noerlol.neotrans.build.ClassWriter;
+
 import java.io.IOException;
 
 public class TranspiledCode {

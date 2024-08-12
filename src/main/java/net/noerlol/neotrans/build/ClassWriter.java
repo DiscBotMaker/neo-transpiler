@@ -1,6 +1,11 @@
-package net.noerlol.neotrans.utils;
+package net.noerlol.neotrans.build;
 
+import net.noerlol.cliargs.Option;
 import net.noerlol.neotrans.Main;
+import net.noerlol.neotrans.utils.PlatformSpecific;
+import net.noerlol.neotrans.utils.TimeSignature;
+import net.noerlol.neotrans.utils.TranspiledCode;
+import net.noerlol.neotrans.utils.Version;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -42,7 +47,7 @@ public class ClassWriter {
         }
 
         // Create JAR file
-        createJarFile(basePath.resolve("classes" + File.separator + "src").toFile(), "build" + File.separator + "compiled" + ".jar", uid);
+        createJarFile(basePath.resolve("classes" + File.separator + "src").toFile(), "build" + File.separator + "compiled" + ".jar");
         return new TimeSignature(uid);
     }
 
@@ -60,7 +65,13 @@ public class ClassWriter {
             for (File file : files) {
                 if (file.isFile() && file.getName().endsWith(".java")) {
                     String path = file.getAbsolutePath();
-                    int result = compiler.run(null, null, null, "-cp", classpath, path, "-d", outputFolder);
+                    String javacArgs = "";
+                    for (Option option : Main.args.getOptions()) {
+                        if (option.getOption().startsWith("J")) {
+                            javacArgs += "-" + option.getOption().substring(1) + " ";
+                        }
+                    }
+                    int result = compiler.run(null, null, null, "-cp", classpath, path, "-d", outputFolder, javacArgs);
                     if (result != 0) {
                         System.out.println("Compilation failed with code: " + result);
                     }
@@ -69,7 +80,7 @@ public class ClassWriter {
         }
     }
 
-    private void createJarFile(File pathToClasses, String pathToFinalJar, long uid) throws IOException {
+    private void createJarFile(File pathToClasses, String pathToFinalJar) throws IOException {
         if (!pathToClasses.isDirectory()) {
             throw new IllegalArgumentException("argument not a directory");
         }
