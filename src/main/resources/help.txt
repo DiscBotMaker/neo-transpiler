@@ -14,7 +14,7 @@ options:
                                     └> -Dstd<std> is optional, but if mentioned then will use that stdlib version, like -Dstd 1, -Dstd 2 etc
     [--simple   |   -s] -> will not use any graphics at all only plain text
     [--update-config
-                |   -c] -> updates config
+                |   -u] -> updates config
 
 gui options:
     [--gui      |   -g] -> starts the gui
