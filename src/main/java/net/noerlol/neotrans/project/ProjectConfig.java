@@ -7,6 +7,7 @@ import net.noerlol.util.Config;
 import net.noerlol.util.ResourceFetcher;
 
 import java.io.*;
+import java.util.ArrayList;
 
 public class ProjectConfig extends Config {
     @Override
@@ -23,5 +24,25 @@ public class ProjectConfig extends Config {
             System.err.println(e.getMessage());
             System.exit(1);
         }
+    }
+
+    public void updateConfig() throws IOException {
+        String[] newConfig = new ResourceFetcher(ProjectConfig.class, "a").getFileText();
+        String[] oldConfig = getLinesOfConfig();
+
+        int maxLength = Math.max(newConfig.length, oldConfig.length);
+
+        System.out.println("update-config not supported :(");
+    }
+
+    private String[] getLinesOfConfig() throws IOException {
+        ArrayList<String> lines = new ArrayList<>();
+        BufferedReader reader = new BufferedReader(new FileReader("project.yml"));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            lines.add(line);
+        }
+        reader.close();
+        return lines.toArray(new String[0]);
     }
 }

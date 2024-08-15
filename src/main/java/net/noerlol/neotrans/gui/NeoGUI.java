@@ -1,7 +1,6 @@
 package net.noerlol.neotrans.gui;
 
 import net.noerlol.neotrans.Main;
-import net.noerlol.neotrans.api.ProceduralMethod;
 import net.noerlol.neotrans.project.ProjectConfig;
 import net.noerlol.neotrans.utils.PlatformSpecific;
 import net.noerlol.neotrans.utils.Version;
@@ -85,7 +84,7 @@ public class NeoGUI extends JFrame {
                     console = new NeoGUIConsole();
                 }
                 try {
-                    ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "build" + File.separator + "compiled.jar",  "src.Main");
+                    ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "stdlib" + Version.STDLIB_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "build" + File.separator + "compiled.jar",  "src.Main");
                     handleProcessOutput(pb.start());
                 } catch (IOException ex) {
                     throw new RuntimeException(ex);

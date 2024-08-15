@@ -4,13 +4,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 
-public class StoredPrintStream extends PrintStream {
-    private final ArrayList<Character> messagesPrinted = new ArrayList<>();
-    public static StoredPrintStream get(OutputStream outputStream) {
-        return new StoredPrintStream(outputStream);
-    }
+public class NullPrintStream extends PrintStream {
     /**
      * Creates a new print stream, without automatic line flushing, with the
      * specified OutputStream. Characters written to the stream are converted
@@ -20,102 +15,13 @@ public class StoredPrintStream extends PrintStream {
      *            printed
      * @see PrintWriter#PrintWriter(OutputStream)
      */
-    public StoredPrintStream(@NotNull OutputStream out) {
+    public NullPrintStream(@NotNull OutputStream out) {
         super(out);
     }
 
-    /**
-     * Writes the specified byte to this stream.  If the byte is a newline and
-     * automatic flushing is enabled then the {@code flush} method will be
-     * invoked on the underlying output stream.
-     *
-     * <p> Note that the byte is written as given; to write a character that
-     * will be translated according to the platform's default character
-     * encoding, use the {@code print(char)} or {@code println(char)}
-     * methods.
-     *
-     * @param b The byte to be written
-     * @see #print(char)
-     * @see #println(char)
-     */
-    @Override
-    public void write(int b) {
-        messagesPrinted.add((char) b);
-    }
 
-    /**
-     * Writes {@code len} bytes from the specified byte array starting at
-     * offset {@code off} to this stream.  If automatic flushing is
-     * enabled then the {@code flush} method will be invoked on the underlying
-     * output stream.
-     *
-     * <p> Note that the bytes will be written as given; to write characters
-     * that will be translated according to the platform's default character
-     * encoding, use the {@code print(char)} or {@code println(char)}
-     * methods.
-     *
-     * @param buf A byte array
-     * @param off Offset from which to start taking bytes
-     * @param len Number of bytes to write
-     */
-    @Override
-    public void write(@NotNull byte[] buf, int off, int len) {
-        this.writeBytes(buf);
-    }
-
-    /**
-     * Writes all bytes from the specified byte array to this stream. If
-     * automatic flushing is enabled then the {@code flush} method will be
-     * invoked on the underlying output stream.
-     *
-     * <p> Note that the bytes will be written as given; to write characters
-     * that will be translated according to the platform's default character
-     * encoding, use the {@code print(char[])} or {@code println(char[])}
-     * methods.
-     *
-     * @param buf A byte array
-     * @throws IOException If an I/O error occurs.
-     * @apiNote Although declared to throw {@code IOException}, this method never
-     * actually does so. Instead, like other methods that this class
-     * overrides, it sets an internal flag which may be tested via the
-     * {@link #checkError()} method. To write an array of bytes without having
-     * to write a {@code catch} block for the {@code IOException}, use either
-     * {@link #writeBytes(byte[] buf) writeBytes(buf)} or
-     * {@link #write(byte[], int, int) write(buf, 0, buf.length)}.
-     * @implSpec This method is equivalent to
-     * {@link PrintStream#write(byte[], int, int)
-     * this.write(buf, 0, buf.length)}.
-     * @see #writeBytes(byte[])
-     * @see #write(byte[], int, int)
-     * @since 14
-     */
-    @Override
-    public void write(byte[] buf) throws IOException {
-        for (int i = 0; i < buf.length; i++) {
-            write(buf[i]);
-        }
-    }
-
-    /**
-     * Writes all bytes from the specified byte array to this stream.
-     * If automatic flushing is enabled then the {@code flush} method
-     * will be invoked.
-     *
-     * <p> Note that the bytes will be written as given; to write characters
-     * that will be translated according to the platform's default character
-     * encoding, use the {@code print(char[])} or {@code println(char[])}
-     * methods.
-     *
-     * @param buf A byte array
-     * @implSpec This method is equivalent to
-     * {@link #write(byte[], int, int) this.write(buf, 0, buf.length)}.
-     * @since 14
-     */
-    @Override
-    public void writeBytes(byte[] buf) {
-        for (int i = 0; i < buf.length; i++) {
-            write(buf[i]);
-        }
+    public static NullPrintStream getNull() {
+        return new NullPrintStream(new NullOutputStream());
     }
 
     /**
@@ -131,7 +37,7 @@ public class StoredPrintStream extends PrintStream {
      *                  character or byte ({@code '\n'}) is written
      * @see PrintWriter#PrintWriter(OutputStream, boolean)
      */
-    public StoredPrintStream(@NotNull OutputStream out, boolean autoFlush) {
+    public NullPrintStream(@NotNull OutputStream out, boolean autoFlush) {
         super(out, autoFlush);
     }
 
@@ -151,7 +57,7 @@ public class StoredPrintStream extends PrintStream {
      * @throws UnsupportedEncodingException If the named encoding is not supported
      * @since 1.4
      */
-    public StoredPrintStream(@NotNull OutputStream out, boolean autoFlush, @NotNull String encoding) throws UnsupportedEncodingException {
+    public NullPrintStream(@NotNull OutputStream out, boolean autoFlush, @NotNull String encoding) throws UnsupportedEncodingException {
         super(out, autoFlush, encoding);
     }
 
@@ -170,7 +76,7 @@ public class StoredPrintStream extends PrintStream {
      * @param charset   A {@linkplain Charset charset}
      * @since 10
      */
-    public StoredPrintStream(OutputStream out, boolean autoFlush, Charset charset) {
+    public NullPrintStream(OutputStream out, boolean autoFlush, Charset charset) {
         super(out, autoFlush, charset);
     }
 
@@ -195,7 +101,7 @@ public class StoredPrintStream extends PrintStream {
      *                               access to the file
      * @since 1.5
      */
-    public StoredPrintStream(@NotNull String fileName) throws FileNotFoundException {
+    public NullPrintStream(@NotNull String fileName) throws FileNotFoundException {
         super(fileName);
     }
 
@@ -222,7 +128,7 @@ public class StoredPrintStream extends PrintStream {
      * @throws UnsupportedEncodingException If the named charset is not supported
      * @since 1.5
      */
-    public StoredPrintStream(@NotNull String fileName, @NotNull String csn) throws FileNotFoundException, UnsupportedEncodingException {
+    public NullPrintStream(@NotNull String fileName, @NotNull String csn) throws FileNotFoundException, UnsupportedEncodingException {
         super(fileName, csn);
     }
 
@@ -244,7 +150,7 @@ public class StoredPrintStream extends PrintStream {
      *                           access to the file
      * @since 10
      */
-    public StoredPrintStream(String fileName, Charset charset) throws IOException {
+    public NullPrintStream(String fileName, Charset charset) throws IOException {
         super(fileName, charset);
     }
 
@@ -269,7 +175,7 @@ public class StoredPrintStream extends PrintStream {
      *                               denies write access to the file
      * @since 1.5
      */
-    public StoredPrintStream(@NotNull File file) throws FileNotFoundException {
+    public NullPrintStream(@NotNull File file) throws FileNotFoundException {
         super(file);
     }
 
@@ -296,7 +202,7 @@ public class StoredPrintStream extends PrintStream {
      * @throws UnsupportedEncodingException If the named charset is not supported
      * @since 1.5
      */
-    public StoredPrintStream(@NotNull File file, @NotNull String csn) throws FileNotFoundException, UnsupportedEncodingException {
+    public NullPrintStream(@NotNull File file, @NotNull String csn) throws FileNotFoundException, UnsupportedEncodingException {
         super(file, csn);
     }
 
@@ -318,11 +224,7 @@ public class StoredPrintStream extends PrintStream {
      *                           denies write access to the file
      * @since 10
      */
-    public StoredPrintStream(File file, Charset charset) throws IOException {
+    public NullPrintStream(File file, Charset charset) throws IOException {
         super(file, charset);
-    }
-
-    public ArrayList<Character> getMessagesPrinted() {
-        return this.messagesPrinted;
     }
 }

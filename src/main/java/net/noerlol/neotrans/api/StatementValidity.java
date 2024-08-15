@@ -9,12 +9,8 @@ public class StatementValidity {
         this.wasValid = false;
     }
 
-    public StatementValidity(boolean valid) {
-        if (!valid) {
-            throw new IllegalArgumentException("valid was false, when expected true");
-        } else {
-            this.wasValid = true;
-        }
+    public StatementValidity() {
+        this.wasValid = true;
         this.errorMessage = "";
     }
 

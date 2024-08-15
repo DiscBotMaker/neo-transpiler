@@ -2,10 +2,7 @@ package net.noerlol.neotrans.build;
 
 import net.noerlol.cliargs.Option;
 import net.noerlol.neotrans.Main;
-import net.noerlol.neotrans.utils.PlatformSpecific;
-import net.noerlol.neotrans.utils.TimeSignature;
-import net.noerlol.neotrans.utils.TranspiledCode;
-import net.noerlol.neotrans.utils.Version;
+import net.noerlol.neotrans.utils.*;
 
 import javax.tools.JavaCompiler;
 import javax.tools.ToolProvider;
@@ -13,6 +10,8 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
+
+import static net.noerlol.neotrans.utils.LibraryDownloader.BUFFER_SIZE;
 
 public class ClassWriter {
     private static final String BUILD_CACHE = ".build-cache";
@@ -40,11 +39,13 @@ public class ClassWriter {
         }
 
         // Compile to .class files
-        if (!Main.args.isEnabled("Cno-stdlib", true)) {
-            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar");
+        String classpath;
+        if (Main.args.isEnabled("Cno-stdlib", true)) {
+            classpath = ".";
         } else {
-            compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), ".");
+            classpath = "lib" + File.separator + "stdlib" + Version.STDLIB_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar";
         }
+        compileToClasses(basePath.resolve("built").toString(), basePath.resolve("classes").toString(), classpath);
 
         // Create JAR file
         createJarFile(basePath.resolve("classes" + File.separator + "src").toFile(), "build" + File.separator + "compiled" + ".jar");
@@ -68,10 +69,15 @@ public class ClassWriter {
                     String javacArgs = "";
                     for (Option option : Main.args.getOptions()) {
                         if (option.getOption().startsWith("J")) {
-                            javacArgs += "-" + option.getOption().substring(1) + " ";
+                            javacArgs += "--" + option.getOption().substring(1) + " ";
                         }
                     }
-                    int result = compiler.run(null, null, null, "-cp", classpath, path, "-d", outputFolder, javacArgs);
+                    int result;
+                    if (!javacArgs.isEmpty()) {
+                        result = compiler.run(null, null, null, javacArgs.trim(), "-cp", classpath, path, "-d", outputFolder);
+                    } else {
+                        result = compiler.run(null, null, null, "-cp", classpath, path, "-d", outputFolder);
+                    }
                     if (result != 0) {
                         System.out.println("Compilation failed with code: " + result);
                     }
@@ -82,7 +88,7 @@ public class ClassWriter {
 
     private void createJarFile(File pathToClasses, String pathToFinalJar) throws IOException {
         if (!pathToClasses.isDirectory()) {
-            throw new IllegalArgumentException("argument not a directory");
+            throw new IllegalArgumentException(("%arg% not a directory").replace("%arg%", pathToClasses.getAbsolutePath()));
         }
 
         try (FileOutputStream fos = new FileOutputStream(pathToFinalJar);
@@ -104,7 +110,7 @@ public class ClassWriter {
                     jos.putNextEntry(jarEntry);
 
                     try (FileInputStream fis = new FileInputStream(file)) {
-                        byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[BUFFER_SIZE];
                         int bytesRead;
                         while ((bytesRead = fis.read(buffer)) != -1) {
                             jos.write(buffer, 0, bytesRead);

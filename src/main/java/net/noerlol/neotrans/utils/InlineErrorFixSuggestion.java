@@ -20,7 +20,7 @@ public class InlineErrorFixSuggestion {
         msg = " | " + msg;
         String padding = " ".repeat(String.valueOf(lineNum).length());
         printStream.println(padding + " | ");
-        printStream.println(padding + "\b" + lineNum + " | " + originalString);
+        printStream.println("\b" + lineNum + " | " + originalString);
         printStream.println(padding + msg);
     }
 
@@ -39,7 +39,7 @@ public class InlineErrorFixSuggestion {
         msg = " | " + msg;
         String padding = " ".repeat(String.valueOf(lineNum).length());
         printStream.println(padding + " | ");
-        printStream.println(padding + "\b" + lineNum + " | " + originalString);
+        printStream.println("\b" + lineNum + " | " + originalString);
         printStream.println(padding + msg);
     }
 }

@@ -1,6 +1,5 @@
 package net.noerlol.neotrans.compilation;
 
-import net.noerlol.neotrans.utils.DynamicImports;
 import net.noerlol.neotrans.utils.Import;
 import net.noerlol.neotrans.utils.TokenizedCode;
 import net.noerlol.neotrans.utils.TranspiledCode;
@@ -12,7 +11,7 @@ public class Transpiler {
     public static TranspiledCode transpile(TokenizedCode tc) {
         for (String str : tc.getCode().split("\\n")) {
             str = str;
-            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, print = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false;
+            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, print = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false, printlnerr = false, printerr = false;
             if (str.startsWith("fn ")) {
                 functionMake = true;
             } else if (str.startsWith("var ")) {
@@ -21,13 +20,19 @@ public class Transpiler {
                 whitespace = true;
             } else if (str.startsWith("}")) {
                 funEnd = true;
-            } else if (str.contains("println")) {
+            } else if (str.contains("println") && !str.contains("printlnerr")) {
                 println = true;
             } else if (str.contains("inputln")) {
                 inputln = true;
-            } else if (str.contains("print") && !str.contains("println")) {
+            } else if (str.contains("print") && !str.contains("println") && !str.contains("printerr")) {
                 print = true;
-            } else if (str.startsWith("import")) {
+            } else if (str.contains("printlnerr")) {
+                printlnerr = true;
+            } else if (str.contains("printerr") && !str.contains("printlnerr")) {
+                printerr = true;
+            }
+
+            else if (str.startsWith("import")) {
                 _import = true;
             } else if ((str.contains("(") && str.contains(")")) && !str.startsWith("fn")) {
                 functionUse = true;
@@ -39,25 +44,49 @@ public class Transpiler {
                 _else = true;
             }
 
-            if (println) {
-                str = str.replaceAll("println", ""); // ("hello, wrld!");
-                str = str.replaceAll("\\(", ""); // "hello, wrld!");
-                str = str.replaceAll("\\)", ""); // "hello, wrld!";
-                str = str.replaceAll(";", ""); // "hello, wrld!"
-                transpiledCode += "System.out.println(" + str + ");";
-            } else if (inputln) {
+            if (inputln) {
                 str = str.replaceAll("inputln", ""); // ("hello, wrld!");
                 str = str.replaceAll("\\(", ""); // "hello, wrld!");
                 str = str.replaceAll("\\)", ""); // "hello, wrld!";
                 str = str.replaceAll(";", ""); // "hello, wrld!"
-                transpiledCode += "System.out.print(" + str + ");";
-                transpiledCode += "new Scanner(System.in).nextLine();";
-            } else if (print) {
-                str = str.replaceAll("print", ""); // ("hello, wrld!");
-                str = str.replaceAll("\\(", ""); // "hello, wrld!");
-                str = str.replaceAll("\\)", ""); // "hello, wrld!";
-                str = str.replaceAll(";", ""); // "hello, wrld!"
-                transpiledCode += "System.out.print(" + str + ");";
+                if (!str.isEmpty()) {
+                    transpiledCode += "System.print(" + str + ");";
+                }
+                transpiledCode += "new Scanner(java.lang.System.in).nextLine();";
+            } else {
+                if (print) {
+                    str = str.replaceAll("print", ""); // ("hello, wrld!");
+                    str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                    str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                    str = str.replaceAll(";", ""); // "hello, wrld!"
+                    transpiledCode += "System.print(" + str + ");";
+                } else if (println) {
+                    str = str.replaceAll("println", ""); // ("hello, wrld!");
+                    str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                    str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                    str = str.replaceAll(";", ""); // "hello, wrld!"
+                    if (!str.isEmpty()) {
+                        transpiledCode += "System.print(" + str + ");System.println();";
+                    } else {
+                        transpiledCode += "System.println();";
+                    }
+                } else if (printlnerr) {
+                    str = str.replace("printlnerr", ""); // ("hello, wrld!");
+                    str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                    str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                    str = str.replaceAll(";", ""); // "hello, wrld!"
+                    if (!str.isEmpty()) {
+                        transpiledCode += "System.printErr(" + str + ");System.printlnErr();";
+                    } else {
+                        transpiledCode += "System.printlnErr();";
+                    }
+                } else if (printerr) {
+                    str = str.replace("printerr", ""); // ("hello, wrld!");
+                    str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                    str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                    str = str.replaceAll(";", ""); // "hello, wrld!"
+                    transpiledCode += "System.printErr(" + str + ");";
+                }
             }
 
             if (variable) {
@@ -79,8 +108,10 @@ public class Transpiler {
                     value = value.replaceAll("\\)", ""); // "hello, wrld!";
                     value = value.replaceAll(";", ""); // "hello, wrld!"
 
-                    transpiledCode += "System.out.print(" + value + ");";
-                    transpiledCode += type + " " + name + " = " + "new Scanner(System.in).nextLine();";
+                    if (!value.isEmpty()) {
+                        transpiledCode += "System.print(" + value + ");";
+                    }
+                    transpiledCode += type + " " + name + " = " + "new Scanner(java.lang.System.in).nextLine();";
                 } else {
                     transpiledCode += type + " " + name + " = " + value + "; ";
                 }

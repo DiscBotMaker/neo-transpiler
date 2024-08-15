@@ -3,6 +3,7 @@ package net.noerlol.neotrans.utils;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -32,26 +33,23 @@ public class FileUtils {
     }
 
     public void deleteRecursive(Path path) {
-        ArrayList<File> files = new ArrayList<>();
-        for (String str : R_ListFiles(path.toFile())) {
-            files.add(new File(str).getAbsoluteFile());
-        }
+        File file = path.toFile();
 
-        for (File file : files) {
-            if (!file.isDirectory()) {
-                file.delete();
-                files.remove(file);
-            }
-        }
-        for (File file : files) {
-            if (file.isDirectory()) {
-                file.delete();
-                files.remove(file);
+        // Check if it's a directory
+        if (file.isDirectory()) {
+            // Get all the files in the directory
+            File[] files = file.listFiles();
+            if (files != null) { // Avoid null pointer exception
+                for (File f : files) {
+                    deleteRecursive(f.toPath()); // Recursive call
+                }
             }
         }
 
-        if (!files.isEmpty()) {
-            System.out.println("an error occurred");
+        // Delete the file or empty directory
+        boolean deleted = file.delete();
+        if (!deleted) {
+            System.out.println("Failed to delete: " + file.getAbsolutePath());
         }
     }
 }

@@ -2,6 +2,8 @@ package net.noerlol.neotrans;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import net.noerlol.cliargs.CommandLineArgumentsHandler;
+import net.noerlol.cliargs.Option;
+import net.noerlol.neotrans.build.BuildScriptCreator;
 import net.noerlol.neotrans.gui.NeoGUI;
 import net.noerlol.neotrans.project.ProjectConfig;
 import net.noerlol.neotrans.project.ProjectCreator;
@@ -12,10 +14,7 @@ import net.noerlol.util.ArrayJoiner;
 import net.noerlol.util.ResourceFetcher;
 
 import javax.swing.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,7 +35,12 @@ public class Main {
             if (!Version.RELEASE_TYPE.equals("DEV")) {
                 System.out.println("not a debug build");
             } else {
-                System.out.println("nothing here!");
+                StoredPrintStream storedPrintStream = StoredPrintStream.get(NullPrintStream.getNull());
+                storedPrintStream.println("asdasdasd");
+
+                for (Character c : storedPrintStream.getMessagesPrinted()) {
+                    System.out.print(c);
+                }
             }
             System.exit(0);
         } if (args.isEnabled("S", true) || args.isEnabled("setup", false)) {
@@ -58,6 +62,9 @@ public class Main {
             }
         } if (args.isEnabled("b", true) || args.isEnabled("build", false)) {
             config.loadConfig(new File("project.yml"));
+            if (!config.getString("version").equals(Version.VERSION)) {
+                System.err.println("Your config is outdated! Consider running neotrans [--update-config | -u]");
+            }
             File sourceDirectory = new File(config.getString("project.source_directory"));
             ArrayList<String> compilationFiles = new FileUtils().R_ListFiles(sourceDirectory);
 
@@ -86,18 +93,31 @@ public class Main {
             // Running
             transpiledCode.run();
         } if (args.isEnabled("r", true) || args.isEnabled("run", false)) {
-            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "libstd" + Version.libstd_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "build" + File.separator + "compiled.jar",  "src.Main");
+            ProcessBuilder pb = new ProcessBuilder("java", "-cp", "lib" + File.separator + "libjda" + Version.libjda_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "lib" + File.separator + "stdlib" + Version.STDLIB_VERSION + ".jar" + PlatformSpecific.CLASSPATH_SEPARATOR + "build" + File.separator + "compiled.jar",  "src.Main");
             Process p = pb.start();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()))) {
+            {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
                 String line;
                 while ((line = reader.readLine()) != null) {
                     System.out.println(line);
                 }
             }
+            new Thread(() -> {
+                try{
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getErrorStream()));
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        System.err.println(line);
+                    }
+                } catch (IOException e) { throw new RuntimeException(e); }
+            }).start();
         } if (args.isEnabled("D", true) || args.isEnabled("download-libraries", false)) {
             Mirror mirror;
             if (Files.exists(Paths.get("project.yml"))) {
                 config.loadConfig(new File("project.yml"));
+                if (!config.getString("version").equals(Version.VERSION)) {
+                    System.err.println("Your config is outdated! Consider running neotrans [--update-config | -u]");
+                }
                 String mirrorUrl = config.getString("library_mirror");
                 if (mirrorUrl.equals("OFFICIAL")) {
                     mirror = Mirror.OFFICIAL_MIRROR;
@@ -149,7 +169,7 @@ authors: %authors%
 language level: %languagelevel%
 """;
             }
-            msg = msg.replace("%version%", Version.VERSION).replace("%os%", System.getProperty("os.name")).replace("%type%", Version.RELEASE_TYPE).replace("%authors%", Version.AUTHORS).replace("%languagelevel%", Version.STDVERSION);
+            msg = msg.replace("%version%", Version.VERSION).replace("%os%", System.getProperty("os.name")).replace("%type%", Version.RELEASE_TYPE).replace("%authors%", Version.AUTHORS).replace("%languagelevel%", Version.STDLIB_VERSION);
             System.out.println(msg);
             System.exit(0);
         } if (args.isEnabled("gui", false) || args.isEnabled("g", true)) {
@@ -161,6 +181,12 @@ language level: %languagelevel%
             }
             UIManager.setLookAndFeel(new FlatDarculaLaf());
             NeoGUI gui = new NeoGUI();
+        }
+
+        if (args.isEnabled("create-build-script", false) || args.isEnabled("B", true)) {
+            System.out.println("creating build script");
+            BuildScriptCreator.create(args.getOptions().toArray(new Option[0]));
+            System.out.println("done");
         }
 
         if (args.isEmpty()) {
