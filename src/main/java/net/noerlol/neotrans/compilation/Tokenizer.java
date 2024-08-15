@@ -8,10 +8,7 @@ import net.noerlol.neotrans.utils.*;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 public class Tokenizer {
@@ -51,6 +48,8 @@ public class Tokenizer {
     private boolean expectingFunction = false;
     private boolean expectingCommentBlock = false;
 
+    private Stack<String> scopeStack = new Stack<>();
+
     public Tokenizer(int TAB_LENGTH, String fileName) {
         this.TAB_LENGTH = TAB_LENGTH;
         this.fileName = fileName;
@@ -85,11 +84,11 @@ public class Tokenizer {
     public TokenizedCode parseEnd(PrintStream errorWriter) {
         if (expectingFunction || expectingIfElseElseIf) {
             InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
-            errorWriter.println("error: " + "not found" + "\n");
+            errorWriter.println("syntax-error: " + "closing brace not found" + "\n");
             errors++;
         } if (!functions.containsKey("fn main() {")) {
             InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber);
-            errorWriter.println("error: " + "not found" + "\n");
+            errorWriter.println("syntax-error: " + "main function not found" + "\n");
             errors++;
         } if (errors > 0 || warnings > 0) {
             errorWriter.println("errors generated: " + errors);
@@ -157,8 +156,6 @@ public class Tokenizer {
         } else {
             statement = true;
         }
-
-        lineNumber++;
 
         if (stdlib_function) {
             if (Main.args.isEnabled("Cno-stdlib", true)) {
@@ -237,32 +234,41 @@ public class Tokenizer {
         }
 
         if (scopeEnd) {
-            if (!expectingFunction && !expectingIfElseElseIf) {
+            if (scopeStack.isEmpty()) {
                 InlineErrorFixSuggestion.fix(str, '}', errorWriter, lineNumber);
+                errorWriter.println("syntax-error: " + "stray closing brace" + "\n");
                 errors++;
-            }
-            if (expectingFunction) {
-                functions.put(b_FunctionName, b_FunctionCode);
+            } else {
+                if (scopeStack.lastElement().equals("if") || scopeStack.lastElement().equals("elseif") || scopeStack.lastElement().equals("else")) {
+                    scopeStack.pop();
+                    expectingIfElseElseIf = false;
+                    b_IfElseElseIfCode = "";
+                } else if (scopeStack.lastElement().equals("function")) {
+                    functions.put(b_FunctionName, b_FunctionCode);
 
-                // Cleanup
-                expectingFunction = false;
-                b_FunctionName = "";
-                b_FunctionCode = "";
-                b_FunctionParameters.clear();
-            } else if (expectingIfElseElseIf) {
-                expectingIfElseElseIf = false;
-                b_IfElseElseIfCode = "";
+                    // Cleanup
+                    expectingFunction = false;
+                    b_FunctionName = "";
+                    b_FunctionCode = "";
+                    b_FunctionParameters.clear();
+                }
             }
         }
 
         if (functionMake) {
             if (expectingFunction) {
                 InlineErrorFixSuggestion.fix(str, "fn", errorWriter, lineNumber);
+                errorWriter.println("syntax-error: " + "nested functions are not supported" + "\n");
+                errors++;
+            } if (functions.containsKey(str)) {
+                InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
+                errorWriter.println("already-defined-error: " + "function already defined" + "\n");
                 errors++;
             }
+            scopeStack.push("function");
             b_FunctionName = str;
             String b_str = str;
-            b_str = b_str.replace("fn ", "").replace(" {", "").split("\\(")[1].replace(")", ""); // str as, str at
+            b_str = b_str.replace("fn ", "").replace(" {", "").split("\\(")[1].replace(")", ""); // as: string, at: string
             String[] parameters = b_str.split(",");
             for (String parameter : parameters) {
                 parameter = parameter.trim();
@@ -283,13 +289,13 @@ public class Tokenizer {
             String[] var_valueMap = str.split("=");
             if (!functionUse) {
                 if (!(var_valueMap[0].contains(":"))) {
-                    errorWriter.println("syntax-error: " + "expected :<Type> at line: " + lineNumber);
+                    errorWriter.println("syntax-error: " + "expected :<Type> at line: " + lineNumber + "\n");
                     errors++;
                 }
 
                 String[] name_typeMap = var_valueMap[0].split(":");
                 if (variables.containsKey(name_typeMap[0])) {
-                    errorWriter.println("already-defined-error: " + "variable already defined at line: " + lineNumber);
+                    errorWriter.println("already-defined-error: " + "variable already defined at line: " + lineNumber + "\n");
                     errors++;
                 } else {
                     v_PutKey(name_typeMap[0], name_typeMap[1], var_valueMap[1]);
@@ -299,8 +305,15 @@ public class Tokenizer {
             str = "var " + str; // re-added 'var '
         }
 
-        if (_if) {
+        if (_if || _elseIf || _else) {
             expectingIfElseElseIf = true;
+            if (_if) {
+                scopeStack.push("if");
+            } else if (_elseIf) {
+                scopeStack.push("elseif");
+            } else if (_else) {
+                scopeStack.push("else");
+            }
         }
 
         if (_import) {
@@ -345,6 +358,8 @@ public class Tokenizer {
         if (!whitespace && !statement) {
             TOKENIZED += str + "\n";
         }
+
+        lineNumber++;
     }
 
     private void v_PutKey(String var1, String var2, String var3) {

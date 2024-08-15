@@ -10,8 +10,7 @@ public class Transpiler {
 
     public static TranspiledCode transpile(TokenizedCode tc) {
         for (String str : tc.getCode().split("\\n")) {
-            str = str;
-            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, print = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false, printlnerr = false, printerr = false;
+            boolean functionMake = false, variable = false, statement = false, functionUse = false, whitespace = false, funEnd = false, comment = false, println = false, inputln = false, print = false, _if = false, _elseIf = false, _else = false, scope_end = false, _import = false, printlnerr = false, printerr = false, exit = false;
             if (str.startsWith("fn ")) {
                 functionMake = true;
             } else if (str.startsWith("var ")) {
@@ -30,6 +29,8 @@ public class Transpiler {
                 printlnerr = true;
             } else if (str.contains("printerr") && !str.contains("printlnerr")) {
                 printerr = true;
+            } else if (str.contains("exit")) {
+                exit = true;
             }
 
             else if (str.startsWith("import")) {
@@ -89,6 +90,14 @@ public class Transpiler {
                 }
             }
 
+            if (exit) {
+                str = str.replace("exit", ""); // ("hello, wrld!");
+                str = str.replaceAll("\\(", ""); // "hello, wrld!");
+                str = str.replaceAll("\\)", ""); // "hello, wrld!";
+                str = str.replaceAll(";", ""); // "hello, wrld!"
+                transpiledCode += "java.lang.System.exit(" + str + ");";
+            }
+
             if (variable) {
                 str.replaceAll("var ", "");
                 String[] nameType_Value = str.split("=");
@@ -136,7 +145,7 @@ public class Transpiler {
                             for (int i = 0; i < parameter.split(":").length; i++) {
                                 p[i] = parameter.split(":")[i];
                             }
-                            transpiledCode += p[0] + " " + p[1] + ",";
+                            transpiledCode += p[1] + " " + p[0] + ",";
                         }
                         transpiledCode = transpiledCode.substring(0, transpiledCode.length() - 1) + ") {";
                     } else {

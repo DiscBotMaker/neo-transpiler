@@ -36,7 +36,7 @@ public class Main {
                 System.out.println("not a debug build");
             } else {
                 StoredPrintStream storedPrintStream = StoredPrintStream.get(NullPrintStream.getNull());
-                storedPrintStream.println("asdasdasd");
+                storedPrintStream.println("NASDAQ");
 
                 for (Character c : storedPrintStream.getMessagesPrinted()) {
                     System.out.print(c);
@@ -181,6 +181,9 @@ language level: %languagelevel%
             }
             UIManager.setLookAndFeel(new FlatDarculaLaf());
             NeoGUI gui = new NeoGUI();
+        } if (args.isEnabled("update-config", false) || args.isEnabled("u", true)) {
+            config.loadConfig(new File("project.yml"));
+            config.updateConfig();
         }
 
         if (args.isEnabled("create-build-script", false) || args.isEnabled("B", true)) {

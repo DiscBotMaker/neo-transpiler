@@ -27,12 +27,25 @@ public class ProjectConfig extends Config {
     }
 
     public void updateConfig() throws IOException {
-        String[] newConfig = new ResourceFetcher(ProjectConfig.class, "a").getFileText();
+//        String[] newConfig = new ResourceFetcher(ProjectConfig.class, "project.yml").getFileText();
         String[] oldConfig = getLinesOfConfig();
 
-        int maxLength = Math.max(newConfig.length, oldConfig.length);
+        int index = 1;
+        for (int i = 0; i < oldConfig.length; i++) {
+            if (oldConfig[i].startsWith("version:")) {
+                index = i;
+                break;
+            }
+        }
+        oldConfig[index] = "version: \"%version%\"".replace("%version%", Version.VERSION);
 
-        System.out.println("update-config not supported :(");
+        BufferedWriter writer = new BufferedWriter(new FileWriter("project.yml"));
+        for (String l : oldConfig) {
+            writer.write(l + "\n");
+        }
+        writer.close();
+
+        System.out.println("updated");
     }
 
     private String[] getLinesOfConfig() throws IOException {
