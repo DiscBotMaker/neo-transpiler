@@ -6,7 +6,7 @@
 
     <groupId>net.noerlol.neotrans</groupId>
     <artifactId>NeoTranspiler</artifactId>
-    <version>1.1-RC</version>
+    <version>1.1-RC-2</version>
 
     <name>NeoTranspiler</name>
     <description>The transpiler/compiler utility for DBMScript</description>

@@ -27,8 +27,8 @@ public class ProjectConfig extends Config {
     }
 
     public void updateConfig() throws IOException {
-//        String[] newConfig = new ResourceFetcher(ProjectConfig.class, "project.yml").getFileText();
         String[] oldConfig = getLinesOfConfig();
+        writeOldConfig(oldConfig);
 
         int index = 1;
         for (int i = 0; i < oldConfig.length; i++) {
@@ -57,5 +57,13 @@ public class ProjectConfig extends Config {
         }
         reader.close();
         return lines.toArray(new String[0]);
+    }
+
+    private void writeOldConfig(String[] lines) throws IOException {
+        BufferedWriter writer = new BufferedWriter(new FileWriter("project.yml.old"));
+        for (String l : lines) {
+            writer.write(l + System.lineSeparator());
+        }
+        writer.close();
     }
 }
