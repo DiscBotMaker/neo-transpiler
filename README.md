@@ -2,8 +2,8 @@
   <h1><strong>NeoTranspiler</strong></h1>
   <div>
     <a href="https://github.com/vyfor/cord.nvim/stargazers"><img src="https://img.shields.io/github/stars/vyfor/cord.nvim?style=for-the-badge" alt="Stargazers"></a>
-    <a href="https://github.com/vyfor/cord.nvim/blob/master/LICENSE"><img src="https://img.shields.io/github/license/vyfor/cord.nvim?style=for-the-badge" alt="GNU GPL 3.0"></a>
-    <a href="https://github.com/vyfor/cord.nvim/forks"><img src="https://img.shields.io/github/forks/vyfor/cord.nvim?style=for-the-badge" alt="Forks"></a>
+    <a href="https://github.com/DiscBotMaker/neo-transpiler/blob/master/LICENSE"><img src="https://img.shields.io/github/license/vyfor/cord.nvim?style=for-the-badge" alt="LICENSE"></a>
+    <a href="https://github.com/DiscBotMaker/neo-transpiler/forks"><img src="https://img.shields.io/github/forks/vyfor/cord.nvim?style=for-the-badge" alt="Forks"></a>
   </div>
   <h3>🚀 <strong>NeoTranspiler</strong> is a compiler utility for DBMScript, a custom programming language, all written in Java</h3>
 <!--   <img src="https://github.com/vyfor/cord.nvim/assets/92883017/d2e46243-2bef-4c73-bb3f-6d10edc2a2f4" alt="Cord Banner"> -->
