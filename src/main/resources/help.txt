@@ -15,6 +15,9 @@ options:
     [--simple   |   -s] -> will not use any graphics at all only plain text
     [--update-config
                 |   -u] -> updates config
+    [--check-updates
+                |   -U] -> checks for updates
+                optional: [--full | -Uf] -> will give full info
 
 gui options:
     [--gui      |   -g] -> starts the gui

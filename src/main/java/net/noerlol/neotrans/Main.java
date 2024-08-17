@@ -24,6 +24,8 @@ import java.util.ArrayList;
 public class Main {
     public static CommandLineArgumentsHandler args;
     private static final ProjectConfig config = new ProjectConfig();
+    
+    private static final String CONFIG_FILE = "project.yml";
 
     private Main(String[] cliArgs) throws Exception {
         args = new CommandLineArgumentsHandler(cliArgs, "-Dstd", "-Cstd", "-Gpath");
@@ -35,17 +37,12 @@ public class Main {
             if (!Version.RELEASE_TYPE.equals("DEV")) {
                 System.out.println("not a debug build");
             } else {
-                StoredPrintStream storedPrintStream = StoredPrintStream.get(NullPrintStream.getNull());
-                storedPrintStream.println("NASDAQ");
-
-                for (Character c : storedPrintStream.getMessagesPrinted()) {
-                    System.out.print(c);
-                }
+                new Import("dbm.io", "*").getExpandedForm();
             }
             System.exit(0);
         } if (args.isEnabled("S", true) || args.isEnabled("setup", false)) {
             ProjectCreator.init();
-            config.writeConfig(new File("project.yml"));
+            config.writeConfig(new File(CONFIG_FILE));
             LibraryDownloader libraryDownloader;
             if (config.getString("library_mirror").equals("OFFICIAL")) {
                 libraryDownloader = new LibraryDownloader(Mirror.OFFICIAL_MIRROR);
@@ -61,7 +58,7 @@ public class Main {
                 Files.createDirectory(buildCache);
             }
         } if (args.isEnabled("b", true) || args.isEnabled("build", false)) {
-            config.loadConfig(new File("project.yml"));
+            config.loadConfig(new File(CONFIG_FILE));
             if (!config.getString("version").equals(Version.VERSION)) {
                 System.err.println("Your config is outdated! Consider running neotrans [--update-config | -u]");
             }
@@ -113,8 +110,8 @@ public class Main {
             }).start();
         } if (args.isEnabled("D", true) || args.isEnabled("download-libraries", false)) {
             Mirror mirror;
-            if (Files.exists(Paths.get("project.yml"))) {
-                config.loadConfig(new File("project.yml"));
+            if (Files.exists(Paths.get(CONFIG_FILE))) {
+                config.loadConfig(new File(CONFIG_FILE));
                 if (!config.getString("version").equals(Version.VERSION)) {
                     System.err.println("Your config is outdated! Consider running neotrans [--update-config | -u]");
                 }
@@ -182,8 +179,10 @@ language level: %languagelevel%
             UIManager.setLookAndFeel(new FlatDarculaLaf());
             NeoGUI gui = new NeoGUI();
         } if (args.isEnabled("update-config", false) || args.isEnabled("u", true)) {
-            config.loadConfig(new File("project.yml"));
+            config.loadConfig(new File(CONFIG_FILE));
             config.updateConfig();
+        } if (args.isEnabled("check-updates", false) || args.isEnabled("U", true)) {
+            UpdateChecker.checkForUpdates(System.out);
         }
 
         if (args.isEnabled("create-build-script", false) || args.isEnabled("B", true)) {

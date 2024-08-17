@@ -1,6 +1,7 @@
 package net.noerlol.neotrans.compilation;
 
-import net.noerlol.neotrans.utils.Import;
+import net.noerlol.neotrans.compilation.dynamic.DynamicImports;
+import net.noerlol.neotrans.compilation.dynamic.JavaImport;
 import net.noerlol.neotrans.utils.TokenizedCode;
 import net.noerlol.neotrans.utils.TranspiledCode;
 
@@ -167,9 +168,9 @@ public class Transpiler {
             }
             lineNumber++;
         }
-        Import[] imports = DynamicImports.getImportsFromCode(transpiledCode);
+        JavaImport[] imports = DynamicImports.getImportsFromCode(transpiledCode);
         String str_Imports = "";
-        for (Import _import : imports) {
+        for (JavaImport _import : imports) {
             str_Imports += "import " +  _import.getPackageName() + "." + _import.getClassName() + ";";
         }
         return new TranspiledCode(transpiledCode, str_Imports, tc);

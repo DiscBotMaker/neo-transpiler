@@ -17,10 +17,12 @@ public class Tokenizer {
     private final String fileName;
 
     // stuff
-    private String TOKENIZED = "";
+    private StringBuilder TOKENIZED = new StringBuilder();
     private int lineNumber = 1;
     private int errors = 0;
     private int warnings = 0;
+
+    private final Preprocessor preprocessor = new Preprocessor();
 
     // Finals
     private final String[] SYSTEM_IMPORTS = {
@@ -29,7 +31,8 @@ public class Tokenizer {
             "dbm.bot.Context",
             "dbm.bot.Command",
             "java.lang.String", // Replaced because the preprocessor replaces dbm.lang* with java.lang*
-            "dbm.util.Project"
+            "dbm.util.Project",
+            "dbm."
     }; // Todo: Package Manager stuffs
 
 
@@ -67,7 +70,7 @@ public class Tokenizer {
      */
     public TokenizedCode parse(String[] lines, PrintStream errorWriter) {
         for (String line : lines) {
-            line = Preprocessor.processLine(line);
+            line = preprocessor.processLine(line, errorWriter, fileName);
 
             // Finally,
             parseLine(line, errorWriter);
@@ -83,12 +86,12 @@ public class Tokenizer {
     @APIOnly
     public TokenizedCode parseEnd(PrintStream errorWriter) {
         if (expectingFunction || expectingIfElseElseIf) {
-            InlineErrorFixSuggestion.fix("}", '}', errorWriter, lineNumber);
-            errorWriter.println("syntax-error: " + "closing brace not found" + "\n");
+            ErrorFixSuggester.fix("}", '}', errorWriter, lineNumber, fileName);
+            errorWriter.println("syntax-error: " + "closing brace not found" + System.lineSeparator());
             errors++;
         } if (!functions.containsKey("fn main() {")) {
-            InlineErrorFixSuggestion.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber);
-            errorWriter.println("syntax-error: " + "main function not found" + "\n");
+            ErrorFixSuggester.fix("fn main() { ... }", "fn main() { ... }", errorWriter, lineNumber, fileName);
+            errorWriter.println("syntax-error: " + "main function not found" + System.lineSeparator());
             errors++;
         } if (errors > 0 || warnings > 0) {
             errorWriter.println("errors generated: " + errors);
@@ -102,13 +105,12 @@ public class Tokenizer {
             }
         }
 
-        return new TokenizedCode(TOKENIZED, TAB_LENGTH);
+        return new TokenizedCode(TOKENIZED.toString(), TAB_LENGTH);
     }
 
-    @InDevelopment
     @APIOnly
-    public String findReplaceMacro(String line) {
-        throw new InDevelopmentError("using net.noerlol.neotrans.compilation.Tokenizer.findReplaceMacro()");
+    public String findReplaceMacro(String line, PrintStream errorWriter, String fileName) {
+        return preprocessor.processLine(line, errorWriter, fileName);
     }
 
     @APIOnly
@@ -116,7 +118,8 @@ public class Tokenizer {
         boolean functionMake = false, variable = false, statement = false, functionUse = false,
                 whitespace = false, scopeEnd = false, comment = false, stdlib_function = false,
                 _if = false, _elseIf = false, _else = false, _import = false, export = false,
-                stringconcat = false, scopeStart = false, commentBlock = false, commentBlockEnd = false;
+                stringconcat = false, scopeStart = false, commentBlock = false, commentBlockEnd = false,
+                ignore = false;
 
         str = str.replace("\t", " ").trim();
 
@@ -153,32 +156,36 @@ public class Tokenizer {
             stringconcat = true;
         } else if (str.endsWith("{")) {
             scopeStart = true;
+        } else if (str.startsWith("_")) {
+            ignore = true;
         } else {
             statement = true;
         }
 
         if (stdlib_function) {
             if (Main.args.isEnabled("Cno-stdlib", true)) {
-                InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
-                errorWriter.println("stdlib-error: " + "functions from stdlib with options [ -Cno-stdlib ]" + "\n");
+                ErrorFixSuggester.fix(str, str, errorWriter, lineNumber, fileName);
+                errorWriter.println("stdlib-error: " + "functions from stdlib with options [ -Cno-stdlib ]" + System.lineSeparator());
             }
         }
 
         if (commentBlock) {
             expectingCommentBlock = true;
+            commentBlockEnd = false;
         }
 
         if (commentBlockEnd) {
             expectingCommentBlock = false;
+            commentBlockEnd = false;
         }
-        if (comment || expectingCommentBlock) {
+        if (comment || expectingCommentBlock || ignore) {
             return;
         }
         
         if (lineNumber == 1) {
             if (!export) {
-                InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
-                errorWriter.println("export-error: " + "expected export path.main" + "\n");
+                ErrorFixSuggester.fix(str, str, errorWriter, lineNumber, fileName);
+                errorWriter.println("export-error: " + "expected export path.main" + System.lineSeparator());
                 errors++;
             }
         }
@@ -191,8 +198,8 @@ public class Tokenizer {
                 }
             }
             if ((quotes % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + "\"", '"', errorWriter, lineNumber);
-                errorWriter.println("syntax-error: " + "unmatched \"" + "\n");
+                ErrorFixSuggester.fix(str + "\"", '"', errorWriter, lineNumber, fileName);
+                errorWriter.println("syntax-error: " + "unmatched \"" + System.lineSeparator());
                 errors++;
             }
         } else if (str.contains("'")) {
@@ -203,16 +210,16 @@ public class Tokenizer {
                 }
             }
             if ((quotes % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + "'", '\'', errorWriter, lineNumber);
-                errorWriter.println("syntax-error: " + "unmatched '" + "\n");
+                ErrorFixSuggester.fix(str + "'", '\'', errorWriter, lineNumber, fileName);
+                errorWriter.println("syntax-error: " + "unmatched '" + System.lineSeparator());
                 errors++;
             }
         }
 
         if (!scopeStart && !scopeEnd && !whitespace) {
             if (str.endsWith(";")) {
-                InlineErrorFixSuggestion.fix(str, ';', errorWriter, lineNumber);
-                errorWriter.println("warn: " + "found semicolon" + "\n");
+                ErrorFixSuggester.fix(str, ';', errorWriter, lineNumber, fileName);
+                errorWriter.println("warn: " + "found semicolon" + System.lineSeparator());
                 warnings++;
             }
         }
@@ -227,16 +234,16 @@ public class Tokenizer {
                 }
             }
             if ((brackets % 2) != 0) {
-                InlineErrorFixSuggestion.fix(str + ")", ')', errorWriter, lineNumber);
-                errorWriter.println("syntax-error: " + "unmatched (" + "\n");
+                ErrorFixSuggester.fix(str + ")", ')', errorWriter, lineNumber, fileName);
+                errorWriter.println("syntax-error: " + "unmatched (" + System.lineSeparator());
                 errors++;
             }
         }
 
         if (scopeEnd) {
             if (scopeStack.isEmpty()) {
-                InlineErrorFixSuggestion.fix(str, '}', errorWriter, lineNumber);
-                errorWriter.println("syntax-error: " + "stray closing brace" + "\n");
+                ErrorFixSuggester.fix(str, '}', errorWriter, lineNumber, fileName);
+                errorWriter.println("syntax-error: " + "stray closing brace" + System.lineSeparator());
                 errors++;
             } else {
                 if (scopeStack.lastElement().equals("if") || scopeStack.lastElement().equals("elseif") || scopeStack.lastElement().equals("else")) {
@@ -244,6 +251,7 @@ public class Tokenizer {
                     expectingIfElseElseIf = false;
                     b_IfElseElseIfCode = "";
                 } else if (scopeStack.lastElement().equals("function")) {
+                    scopeStack.pop();
                     functions.put(b_FunctionName, b_FunctionCode);
 
                     // Cleanup
@@ -257,12 +265,12 @@ public class Tokenizer {
 
         if (functionMake) {
             if (expectingFunction) {
-                InlineErrorFixSuggestion.fix(str, "fn", errorWriter, lineNumber);
-                errorWriter.println("syntax-error: " + "nested functions are not supported" + "\n");
+                ErrorFixSuggester.fix(str, "fn", errorWriter, lineNumber, fileName);
+                errorWriter.println("syntax-error: " + "nested functions are not supported" + System.lineSeparator());
                 errors++;
             } if (functions.containsKey(str)) {
-                InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
-                errorWriter.println("already-defined-error: " + "function already defined" + "\n");
+                ErrorFixSuggester.fix(str, str, errorWriter, lineNumber, fileName);
+                errorWriter.println("already-defined-error: " + "function already defined" + System.lineSeparator());
                 errors++;
             }
             scopeStack.push("function");
@@ -289,13 +297,13 @@ public class Tokenizer {
             String[] var_valueMap = str.split("=");
             if (!functionUse) {
                 if (!(var_valueMap[0].contains(":"))) {
-                    errorWriter.println("syntax-error: " + "expected :<Type> at line: " + lineNumber + "\n");
+                    errorWriter.println("syntax-error: " + "expected :<Type> at line: " + lineNumber + System.lineSeparator());
                     errors++;
                 }
 
                 String[] name_typeMap = var_valueMap[0].split(":");
                 if (variables.containsKey(name_typeMap[0])) {
-                    errorWriter.println("already-defined-error: " + "variable already defined at line: " + lineNumber + "\n");
+                    errorWriter.println("already-defined-error: " + "variable already defined at line: " + lineNumber + System.lineSeparator());
                     errors++;
                 } else {
                     v_PutKey(name_typeMap[0], name_typeMap[1], var_valueMap[1]);
@@ -323,15 +331,15 @@ public class Tokenizer {
                     ArrayList<File> dirs = new FileUtils().listFiles(new File("."));
                     for (File file : dirs) {
                         if (!file.getPath().contains(mod.split("\\.")[0])) {
-                            InlineErrorFixSuggestion.fix(str, mod, errorWriter, lineNumber);
-                            errorWriter.println("import-error: " + "illegal import" + "\n");
+                            ErrorFixSuggester.fix(str, mod, errorWriter, lineNumber, fileName);
+                            errorWriter.println("import-error: " + "illegal import" + System.lineSeparator());
                             errors++;
                         }
                     }
                 }
             } else {
-                InlineErrorFixSuggestion.fix(str, mod, errorWriter, lineNumber);
-                System.out.println("import-error: " + "import from stdlib not allowed with javac flag [ -Cno-stdlib ]" + "\n");
+                ErrorFixSuggester.fix(str, mod, errorWriter, lineNumber, fileName);
+                System.out.println("import-error: " + "import from stdlib not allowed with javac flag [ -Cno-stdlib ]" + System.lineSeparator());
                 errors++;
             }
         }
@@ -339,24 +347,24 @@ public class Tokenizer {
         if (stringconcat) {
             if (str.contains("\"") && Pattern.compile("\\d").matcher(str).find()) {
                 String nums = Pattern.compile("[a-zA-Z]").matcher(str).replaceAll("");
-                InlineErrorFixSuggestion.fix(str, nums, errorWriter, lineNumber);
+                ErrorFixSuggester.fix(str, nums, errorWriter, lineNumber, fileName);
                 errorWriter.println("syntax-error: string concatenation with number");
                 errors++;
             }
         }
 
         if (statement) {
-            InlineErrorFixSuggestion.fix(str, str, errorWriter, lineNumber);
+            ErrorFixSuggester.fix(str, str, errorWriter, lineNumber, fileName);
             errorWriter.println("syntax-error: unknown symbol(s)");
         }
 
         // Finalizers
         if (expectingFunction && !statement) {
-            b_FunctionCode += str + "\n";
+            b_FunctionCode += str + System.lineSeparator();
         }
 
         if (!whitespace && !statement) {
-            TOKENIZED += str + "\n";
+            TOKENIZED.append(str).append(System.lineSeparator());
         }
 
         lineNumber++;

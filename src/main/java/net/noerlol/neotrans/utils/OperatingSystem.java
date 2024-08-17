@@ -8,6 +8,6 @@ public class OperatingSystem {
     }
 
     public static boolean isWindows() {
-        return !(File.separatorChar == '/');
+        return !(isUnix());
     }
 }
