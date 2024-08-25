@@ -35,7 +35,7 @@ public class Main {
         }
         if (args.isEnabled("d", true) || args.isEnabled("debug", false)) {
             if (!Version.RELEASE_TYPE.equals("DEV")) {
-                System.out.println("not a debug build");
+                System.out.println("not a debug build"); 
             } else {
                 new Import("dbm.io", "*").getExpandedForm();
             }
@@ -199,5 +199,5 @@ language level: %languagelevel%
 
     public static void main(String[] args) throws Exception {
         new Main(args);
-    }
+    } 
 }

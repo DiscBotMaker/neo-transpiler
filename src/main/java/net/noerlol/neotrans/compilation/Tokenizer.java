@@ -1,8 +1,6 @@
 package net.noerlol.neotrans.compilation;
 
 import net.noerlol.neotrans.Main;
-import net.noerlol.neotrans.api.InDevelopment;
-import net.noerlol.neotrans.api.InDevelopmentError;
 import net.noerlol.neotrans.api.APIOnly;
 import net.noerlol.neotrans.utils.*;
 
@@ -44,8 +42,6 @@ public class Tokenizer {
     private String b_FunctionName = "";
     private String b_FunctionCode = "";
     private ArrayList<Map<String, String>> b_FunctionParameters = new ArrayList<>();
-
-    private String b_IfElseElseIfCode = "";
 
     private boolean expectingIfElseElseIf = false;
     private boolean expectingFunction = false;
@@ -249,7 +245,6 @@ public class Tokenizer {
                 if (scopeStack.lastElement().equals("if") || scopeStack.lastElement().equals("elseif") || scopeStack.lastElement().equals("else")) {
                     scopeStack.pop();
                     expectingIfElseElseIf = false;
-                    b_IfElseElseIfCode = "";
                 } else if (scopeStack.lastElement().equals("function")) {
                     scopeStack.pop();
                     functions.put(b_FunctionName, b_FunctionCode);
