@@ -28,7 +28,8 @@ public class Main {
     private static final String CONFIG_FILE = "project.yml";
 
     private Main(String[] cliArgs) throws Exception {
-        args = new CommandLineArgumentsHandler(cliArgs, "-Dstd", "-Cstd", "-Gpath");
+        args = new CommandLineArgumentsHandler(cliArgs, "-Dstd",     "-Cstd",      "-Gpath");
+        //                                     cliArgs, down libstd, compiler std, proj path for gui
         boolean showDebugHelp = false;
         if (args.isEnabled("DEBUG--help", false) || Version.RELEASE_TYPE.equals("DEV")) {
             showDebugHelp = true;
@@ -199,5 +200,25 @@ language level: %languagelevel%
 
     public static void main(String[] args) throws Exception {
         new Main(args);
-    } 
+    }
+
+    public int fibbonaci(int n) {
+        if (n == 0) {
+            return 0;
+        } else if (n == 1) {
+            return 1;
+        } else {
+            return fibbonaci(n - 1) + fibbonaci(n - 2);
+        }
+    }
+
+    public int fib(int n) {
+        if (n == 0) {
+            return 0;
+        } else if (n == 1) {
+            return 1;
+        } else {
+            return fib(n - 1) + fib(n - 2);
+        }
+    }
 }

@@ -23,12 +23,13 @@ public class Import {
             return new Import[]{new Import(this.packageName, className)};
         }
 
-        // className == "*"
         String[] classNames = getClassesFromPackage();
-        for (String c : classNames) {
-            System.out.println(c);
+        ArrayList<Import> actualImports = new ArrayList<>();
+        for (String clazz : classNames) {
+            actualImports.add(new Import(clazz, this.packageName));
         }
-        return null;
+
+        return actualImports.toArray(new Import[0]);
     }
 
     private String[] getClassesFromPackage() throws IOException {
