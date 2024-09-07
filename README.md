@@ -9,6 +9,12 @@
 <!--   <img src="https://github.com/vyfor/cord.nvim/assets/92883017/d2e46243-2bef-4c73-bb3f-6d10edc2a2f4" alt="Cord Banner"> -->
 </div>
 
+<div align="center">
+  <h1>Deprecation Notice</h1>
+  <p>This project will no longer be maintained because of the fact that this is not a real compiler and doesn't have actual Tokenization and Transpilation, I think I've learned a lot with this project and will be starting another organization under the name of jneo (group org.jneo) and will be making an actual compiler will compiles to bytecode executable by a custom virtual machine known as the NVM (NeoVirtualMachine)</p>
+  <b><span>Stay tuned!</span></b>
+</div>
+
 ## Libraries
 [libutil](https://github.com/xNoerPlaysCodes/libutil) - Utils library (net.noerlol.util)          <br>
 [libcli](https://github.com/xNoerPlaysCodes/libcli)   - Cli Args library (net.noerlol.cliargs)
